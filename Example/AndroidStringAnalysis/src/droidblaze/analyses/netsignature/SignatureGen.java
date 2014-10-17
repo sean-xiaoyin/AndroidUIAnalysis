@@ -14,18 +14,18 @@ import java.util.jar.JarFile;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.SootResolver;
 import soot.options.Options;
 import soot.util.Chain;
 import dk.brics.automaton.Automaton;
-import droidblaze.analyses.netsignature.api.NetAPI;
-import droidblaze.analyses.netsignature.api.NetAPIInvoke;
-import droidblaze.thirdparty.jsa.JSADriver;
+import eruiz.analysis.parser.SampleAnalysis;
 
 public class SignatureGen {
 	public static void main(String args[]){
-//		args[0] = "C:/Personal/rabbit/shareLinux/youtube.jar";
-//		args[1] = "-lib=C:/Personal/androidSignature/CSS2012/lib";
-
+		args = new String[2];
+		
+		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/com.pandora.android-1-dex2jar.jar";
+        args[1] = "-lib=/Users/eruiz/AndroidUI/AndroidUIAnalysis/Example/AndroidStringAnalysis/lib";
 		if(args.length==0||args.length>2){
 			System.err.println("Usage: java SignatureGen jarfile [-lib=libdir]");
 			System.exit(0);
@@ -48,14 +48,14 @@ public class SignatureGen {
 		if(analysisJar.endsWith(".jar")){
 			try{
 //				sigGenLog.info("Loading analysis targets...");
-				String harnessJar = analysisJar.replaceAll(".jar", ".harness.jar");
-		        if (!Scene.v().getSootClassPath().contains(harnessJar)) {
-		            Scene.v().setSootClassPath(Scene.v().getSootClassPath() + File.pathSeparatorChar + harnessJar);
-		        }
+//				String harnessJar = analysisJar.replaceAll(".jar", ".harness.jar");
+//		        if (!Scene.v().getSootClassPath().contains(harnessJar)) {
+//		            Scene.v().setSootClassPath(Scene.v().getSootClassPath() + File.pathSeparatorChar + harnessJar);
+//		        }
 		        if (!Scene.v().getSootClassPath().contains(analysisJar)) {
 		            Scene.v().setSootClassPath(Scene.v().getSootClassPath() + File.pathSeparatorChar + analysisJar);
 		        }
-		        	loadJar(harnessJar);
+//		        	loadJar(harnessJar);
 		        	loadJar(analysisJar);
 			}catch(IOException e){
 				System.err.println("Invalid Jar files for soot");
@@ -66,19 +66,30 @@ public class SignatureGen {
 			System.exit(0);
 		}
 		Chain<SootClass> scs = Scene.v().getApplicationClasses();
+		SampleAnalysis sample = new SampleAnalysis();
+		Iterator<SootClass> itClass  = scs.iterator();
+		int count = 1;
+		while(itClass.hasNext()){
+			SootClass sclass = itClass.next();
+			sample.analyzeCalls(sclass);
+			count++;
+			if(count > 1){
+				break;
+			}
+		}
 //		sigGenLog.info("Locating network API calls...");
-		NetAPILocator locator = new NetAPILocator();
-		NetAPI.initiate();
-		List<NetAPIInvoke> netArguments = locator.locate(scs, NetAPI.NetAPItable);
+//		NetAPILocator locator = new NetAPILocator();
+//		NetAPI.initiate();
+//		List<NetAPIInvoke> netArguments = locator.locate(scs, NetAPI.NetAPItable);
 		
 //		sigGenLog.info("Starting Analysis for Signature Generation...");
-		JSADriver driver = new JSADriver(scs, locator.getMethodReturnTable());
-		int index = analysisJar.lastIndexOf('/');
-		String outputPath = analysisJar.substring(0, index)+"/output/"+analysisJar.subSequence(index+1, analysisJar.lastIndexOf('.'));
+//		JSADriver driver = new JSADriver(scs, locator.getMethodReturnTable());
+//		int index = analysisJar.lastIndexOf('/');
+//		String outputPath = analysisJar.substring(0, index)+"/output/"+analysisJar.subSequence(index+1, analysisJar.lastIndexOf('.'));
 		
-		List<Automaton> automatons = driver.drive(netArguments, outputPath);
+//		List<Automaton> automatons = driver.drive(netArguments, outputPath);
 		
-		output(automatons, outputPath);
+//		output(automatons, outputPath);
 	}
 	
 	private static void output(List<Automaton> automatons, String outputPath) {
@@ -137,21 +148,29 @@ public class SignatureGen {
         }
     }
 	
-	public static SootClass loadClass(String name) {
-		
-		SootClass c = Scene.v().loadClass(name, SootClass.BODIES);
-        System.out.println(name);
-		Scene.v().loadNecessaryClasses();
-		
-        c.setApplicationClass();
-        Iterator<SootMethod> mi = c.getMethods().iterator();
-        while (mi.hasNext()) {
-            SootMethod sm = (SootMethod) mi.next();
-            if (sm.isConcrete()) {
-                sm.retrieveActiveBody();
-            }
-        }
-        return c;
+	public static void loadClass(String name) {
+		try{
+			SootClass c = Scene.v().loadClass(name, SootClass.BODIES);
+	        System.out.println(name);
+			Scene.v().loadNecessaryClasses();
+			
+	        c.setApplicationClass();
+	        Iterator<SootMethod> mi = c.getMethods().iterator();
+	        while (mi.hasNext()) {
+	            SootMethod sm = (SootMethod) mi.next();
+	            if (sm.isConcrete()) {
+	                sm.retrieveActiveBody();
+	            }
+	        }
+		}catch(RuntimeException e){
+			String sms = e.getMessage();
+			String className = sms.substring(sms.indexOf("but") + 3, sms.indexOf("is a")).trim();
+			try{
+				SootResolver.v().resolveClass(className, SootClass.SIGNATURES);
+			}catch(RuntimeException e1){
+				System.out.println(e1.getMessage());
+			}
+		}
     }
 
 }

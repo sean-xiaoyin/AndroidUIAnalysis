@@ -85,7 +85,6 @@ public class JSADriver {
         }
         Grammar r = this.gb.getGrammar();
         
-//      System.out.println(r.toString());
         r.approximateOperationCycles();
         r.approximateNonLinear(hs_nt);
         

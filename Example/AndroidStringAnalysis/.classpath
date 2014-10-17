@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/automaton.jar" sourcepath="libsrc/automaton-1.11/src"/>
 	<classpathentry kind="lib" path="lib/junit-4.6.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="lib/polyglot.jar"/>
 	<classpathentry kind="lib" path="lib/string.jar" sourcepath="libsrc/string-src.jar"/>
 	<classpathentry kind="lib" path="lib/soot-2.4.0.jar" sourcepath="libsrc/sootall-2.4.0/soot-2.4.0/src"/>
+	<classpathentry kind="lib" path="/Users/eruiz/Documents/Eclipse_ADT/sdk/platforms/android-19/android.jar" sourcepath="/Applications/ADT/sdk/sources/android-19">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/Applications/ADT/sdk/docs/reference"/>
+		</attributes>
+		<accessrules>
+			<accessrule kind="nonaccessible" pattern="com/android/internal/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
