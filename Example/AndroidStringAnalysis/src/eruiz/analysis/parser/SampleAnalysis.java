@@ -14,6 +14,7 @@ public class SampleAnalysis {
 		// TODO Auto-generated method stub
 		List<SootMethod> methods = sclass.getMethods();
 		for(SootMethod method : methods){
+			System.out.println("SootMethod: " + method.toString() + "\n");
 			CAStmtVisitor csv = new CAStmtVisitor(method);
 			if(method.isConcrete()){
 				Body bd = method.getActiveBody();
@@ -24,8 +25,22 @@ public class SampleAnalysis {
 					st.apply(csv);
 				}
 			}
-			System.out.println("Caller:" + csv.getCaller());
-			System.out.println("Callees:" + csv.getCallees());
+			//System.out.println("Caller:" + csv.getCaller());
+			//System.out.println("Callees:" + csv.getCallees());
+			
+			CallStruct cs = new CallStruct(csv.getCaller().toString());
+			
+			List<SootMethod> callers = csv.getCallees();
+			
+			if(callers.isEmpty()){
+				cs.addCaller("None");
+			} else {
+				for(SootMethod s : callers){
+					cs.addCaller(s.toString());
+				}	
+			}
+				
+			System.out.println("New CallStruct: \n" + cs.toString());
 
 		}
 	}

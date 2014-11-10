@@ -9,6 +9,7 @@ public class CallStruct {
 	
 	public CallStruct(String callee){
 		this.callee = callee;
+		callers = new ArrayList<String>();
 	}
 	
 	public void addCaller(String caller){
@@ -22,4 +23,20 @@ public class CallStruct {
 	public ArrayList<String> getCallers(){
 		return callers;
 	}
+	
+	// DOT graph description language
+	// Graphviz
+	public String toString(){
+		StringBuilder result = new StringBuilder();
+		result.append("Callee: " + callee + "\n" + "Callees:\n");
+		
+		if(callers != null){
+			for(String s : callers){
+				result.append(s + "\n");
+			}
+		}
+		
+		return result.toString();
+	}
+	
 }

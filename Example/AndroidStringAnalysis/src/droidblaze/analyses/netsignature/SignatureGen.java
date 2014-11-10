@@ -26,7 +26,7 @@ public class SignatureGen {
 	public static void main(String args[]){
 		args = new String[2];
 		
-		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/com.pandora.android-1-dex2jar.jar";
+		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/org.wikipedia-17-dex2jar.jar";
         args[1] = "-lib=/Users/eruiz/AndroidUI/AndroidUIAnalysis/Example/AndroidStringAnalysis/lib";
 		if(args.length==0||args.length>2){
 			System.err.println("Usage: java SignatureGen jarfile [-lib=libdir]");
@@ -75,9 +75,9 @@ public class SignatureGen {
 			SootClass sclass = itClass.next();
 			sample.analyzeCalls(sclass);
 			count++;
-			if(count > 1){
-				break;
-			}
+//			if(count > 1){
+//				break;
+//			}
 		}
 //		sigGenLog.info("Locating network API calls...");
 //		NetAPILocator locator = new NetAPILocator();
