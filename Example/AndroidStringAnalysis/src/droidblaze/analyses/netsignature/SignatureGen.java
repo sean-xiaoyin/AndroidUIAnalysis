@@ -21,10 +21,12 @@ import dk.brics.automaton.Automaton;
 import eruiz.analysis.parser.SampleAnalysis;
 
 public class SignatureGen {
+	private static int SOOT_TRIAL_UPPERBOUND = 10;
+	
 	public static void main(String args[]){
 		args = new String[2];
 		
-		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/com.pandora.android-1-dex2jar.jar";
+		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/org.wikipedia-17-dex2jar.jar";
         args[1] = "-lib=/Users/eruiz/AndroidUI/AndroidUIAnalysis/Example/AndroidStringAnalysis/lib";
 		if(args.length==0||args.length>2){
 			System.err.println("Usage: java SignatureGen jarfile [-lib=libdir]");
@@ -73,9 +75,9 @@ public class SignatureGen {
 			SootClass sclass = itClass.next();
 			sample.analyzeCalls(sclass);
 			count++;
-			if(count > 1){
-				break;
-			}
+//			if(count > 1){
+//				break;
+//			}
 		}
 //		sigGenLog.info("Locating network API calls...");
 //		NetAPILocator locator = new NetAPILocator();
@@ -124,6 +126,7 @@ public class SignatureGen {
         });
         StringBuilder b = new StringBuilder(Scene.v().getSootClassPath());
         for (File jar : jars) {
+        //	System.out.println("JAR NAME: " + jar.getName());
             b.append(File.pathSeparator);
             b.append(jar.getPath());
         }
@@ -138,39 +141,48 @@ public class SignatureGen {
         Enumeration<JarEntry> e = jar.entries();
         while (e.hasMoreElements()) {
             JarEntry entry = e.nextElement();
-
+         //   System.out.println("ENTRY HERE: " + entry.getName());
             if (entry.isDirectory() || !entry.getName().endsWith(".class"))
                 continue;
                 
             String name = entry.getName().substring(0, entry.getName().length() - 6);
             name = name.replace('/', '.');
-            loadClass(name);        
+            tryLoadClass(name, SignatureGen.SOOT_TRIAL_UPPERBOUND);        
         }
     }
 	
-	public static void loadClass(String name) {
-		try{
-			SootClass c = Scene.v().loadClass(name, SootClass.BODIES);
-	        System.out.println(name);
-			Scene.v().loadNecessaryClasses();
-			
-	        c.setApplicationClass();
-	        Iterator<SootMethod> mi = c.getMethods().iterator();
-	        while (mi.hasNext()) {
-	            SootMethod sm = (SootMethod) mi.next();
-	            if (sm.isConcrete()) {
-	                sm.retrieveActiveBody();
-	            }
-	        }
-		}catch(RuntimeException e){
-			String sms = e.getMessage();
-			String className = sms.substring(sms.indexOf("but") + 3, sms.indexOf("is a")).trim();
+	public static void tryLoadClass(String name, int trials) {
+		while(trials > 0){
 			try{
-				SootResolver.v().resolveClass(className, SootClass.SIGNATURES);
-			}catch(RuntimeException e1){
-				System.out.println(e1.getMessage());
+				loadClass(name);
+				break;
+			}catch(RuntimeException e){
+				trials = trials - 1;
+				String sms = e.getMessage();
+				String className = sms.substring(sms.indexOf("but") + 3, sms.indexOf("is a")).trim();
+				try{
+					Scene.v().addBasicClass(className, SootClass.SIGNATURES);
+					continue;
+				}catch(RuntimeException e1){
+					System.out.println(e1.getMessage());   
+				}
 			}
 		}
     }
+
+	private static void loadClass(String name) {
+		SootClass c = Scene.v().loadClass(name, SootClass.BODIES);
+		System.out.println(name);   // PRINTS PACKAGE NAME
+		Scene.v().loadNecessaryClasses();
+		
+		c.setApplicationClass();
+		Iterator<SootMethod> mi = c.getMethods().iterator();
+		while (mi.hasNext()) {
+		    SootMethod sm = (SootMethod) mi.next();
+		    if (sm.isConcrete()) {
+		        sm.retrieveActiveBody();
+		    }
+		}
+	}
 
 }
