@@ -1,0 +1,172 @@
+Callee: <com.phonegap.api.IPlugin: com.phonegap.api.PluginResult execute(java.lang.String,org.json.JSONArray,java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: boolean isSynch(java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void onActivityResult(int,int,android.content.Intent)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void onDestroy()>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void onMessage(java.lang.String,java.lang.Object)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void onNewIntent(android.content.Intent)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: boolean onOverrideUrlLoading(java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void onPause(boolean)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void onResume(boolean)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void setContext(com.phonegap.api.PhonegapActivity)>
+Callers:
+None
+
+Callee: <com.phonegap.api.IPlugin: void setView(android.webkit.WebView)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PhonegapActivity: void <init>()>
+Callers:
+<android.app.Activity: void <init>()>
+
+Callee: <com.phonegap.api.PhonegapActivity: void addService(java.lang.String,java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PhonegapActivity: void loadUrl(java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PhonegapActivity: void postMessage(java.lang.String,java.lang.Object)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PhonegapActivity: void sendJavascript(java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PhonegapActivity: void setActivityResultCallback(com.phonegap.api.IPlugin)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PhonegapActivity: void startActivityForResult(com.phonegap.api.IPlugin,android.content.Intent,int)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult$Status: void <clinit>()>
+Callers:
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+<com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+
+Callee: <com.phonegap.api.PluginResult$Status: void <init>(java.lang.String,int)>
+Callers:
+<java.lang.Enum: void <init>(java.lang.String,int)>
+
+Callee: <com.phonegap.api.PluginResult$Status: com.phonegap.api.PluginResult$Status valueOf(java.lang.String)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult$Status: com.phonegap.api.PluginResult$Status[] values()>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult: void <clinit>()>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status)>
+Callers:
+<java.lang.Object: void <init>()>
+<java.lang.StringBuilder: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,float)>
+Callers:
+<java.lang.Object: void <init>()>
+<java.lang.StringBuilder: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,int)>
+Callers:
+<java.lang.Object: void <init>()>
+<java.lang.StringBuilder: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,java.lang.String)>
+Callers:
+<java.lang.Object: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,org.json.JSONArray)>
+Callers:
+<java.lang.Object: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,org.json.JSONArray,java.lang.String)>
+Callers:
+<java.lang.Object: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,org.json.JSONObject)>
+Callers:
+<java.lang.Object: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,org.json.JSONObject,java.lang.String)>
+Callers:
+<java.lang.Object: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: void <init>(com.phonegap.api.PluginResult$Status,boolean)>
+Callers:
+<java.lang.Object: void <init>()>
+<java.lang.StringBuilder: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: java.lang.String getJSONString()>
+Callers:
+<java.lang.StringBuilder: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: boolean getKeepCallback()>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult: java.lang.String getMessage()>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult: int getStatus()>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult: void setKeepCallback(boolean)>
+Callers:
+None
+
+Callee: <com.phonegap.api.PluginResult: java.lang.String toErrorCallbackString(java.lang.String)>
+Callers:
+<java.lang.StringBuilder: void <init>()>
+
+Callee: <com.phonegap.api.PluginResult: java.lang.String toSuccessCallbackString(java.lang.String)>
+Callers:
+<java.lang.StringBuffer: void <init>(java.lang.String)>
+<java.lang.StringBuilder: void <init>()>
+<java.lang.StringBuilder: void <init>()>
+<java.lang.StringBuilder: void <init>()>
+

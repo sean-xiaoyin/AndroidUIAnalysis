@@ -28,7 +28,7 @@ public class CallStruct {
 	// Graphviz
 	public String toString(){
 		StringBuilder result = new StringBuilder();
-		result.append("Callee: " + callee + "\n" + "Callees:\n");
+		result.append("Callee: " + callee + "\n" + "Callers:\n");
 		
 		if(callers != null){
 			for(String s : callers){

@@ -2,9 +2,11 @@ package droidblaze.analyses.netsignature;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +16,6 @@ import java.util.jar.JarFile;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.SootResolver;
 import soot.options.Options;
 import soot.util.Chain;
 import dk.brics.automaton.Automaton;
@@ -26,7 +27,7 @@ public class SignatureGen {
 	public static void main(String args[]){
 		args = new String[2];
 		
-		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/org.wikipedia-17-dex2jar.jar";
+		args[0] = "/Users/eruiz/AndroidUI/AndroidUIAnalysis/Jars/1310178647_com.bejoy.minipaint-dex2jar.jar";
         args[1] = "-lib=/Users/eruiz/AndroidUI/AndroidUIAnalysis/Example/AndroidStringAnalysis/lib";
 		if(args.length==0||args.length>2){
 			System.err.println("Usage: java SignatureGen jarfile [-lib=libdir]");
@@ -68,7 +69,22 @@ public class SignatureGen {
 			System.exit(0);
 		}
 		Chain<SootClass> scs = Scene.v().getApplicationClasses();
-		SampleAnalysis sample = new SampleAnalysis();
+		String filename = args[0].substring(args[0].indexOf("Jars/", 6), args[0].length());
+		String fileArr[] = filename.split("/");
+		filename = fileArr[1];
+		System.out.println("FILENAME " + filename);
+		
+		try {
+			PrintWriter writer = new PrintWriter("/Users/eruiz/Documents/AndroidUI/AndroidUIAnalysis/CallGraph/CG_" + filename + ".txt", "UTF-8");
+			filename = "/Users/eruiz/Documents/AndroidUI/AndroidUIAnalysis/CallGraph/CG_" + filename + ".txt";
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SampleAnalysis sample = new SampleAnalysis(filename);
 		Iterator<SootClass> itClass  = scs.iterator();
 		int count = 1;
 		while(itClass.hasNext()){
