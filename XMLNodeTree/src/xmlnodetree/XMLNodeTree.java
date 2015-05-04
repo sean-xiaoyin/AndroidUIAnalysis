@@ -35,7 +35,22 @@ public class XMLNodeTree extends JFrame {
     /**
      * @param args the command line arguments
      */
-     
+    List<Document> docs;
+    Hashtable<Node, Set<String>> childTable;
+    Hashtable<String, Set<Node>> idNodeTable;
+    Hashtable<String, String> HashIDText;
+    
+    public XMLNodeTree(){
+        List<Document> docs = new ArrayList<Document>;
+        Hashtable<Node, Set<String>> childTable;
+        Hashtable<String, Set<Node>> idNodeTable;
+        Hashtable<String, String> HashIDText;
+    }
+    public Context getSiblings(String id, int level){
+        
+    }
+    
+
     public static Set fetchAttributes(Node node){
         Set<String> ret = new LinkedHashSet<String>();
         NamedNodeMap al = node.getAttributes();
@@ -103,25 +118,31 @@ public class XMLNodeTree extends JFrame {
         
     }
     
-    
-
-    public static void main(String[] args) throws Exception {
-        
-        File filet = new File("C:\\Xue\\ml\\strings.xml");
-        DocumentBuilderFactory dbft = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dbt = dbft.newDocumentBuilder();
-        Document doct = dbt.parse(filet);
-        Hashtable TextID_table = HashTextID(doct);
-        
-        
+    public static void handleFile(String path){
         File file = new File("C:\\Xue\\ml\\layouttest.xml");
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(file);
         Node elem = (Node)doc.getDocumentElement();
-        ArrayList<String> t = new ArrayList<String>();
         fetchAllNodes(elem, t, TextID_table);
         System.out.println(t);
+    }    
+    public XMLNodeTree void handleApk(String apkPath){
+        File filet = new File("C:\\Xue\\ml\\strings.xml");
+        DocumentBuilderFactory dbft = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dbt = dbft.newDocumentBuilder();
+        Document doct = dbt.parse(filet);
+        Hashtable TextID_table = HashTextID(doct);
+    }
+    public static void main(String[] args) throws Exception {
+       //iterate over all apks
+       
+        for (String apkPath : apkFolder){
+            XMLNodeTree xnt = handleApk(apkPath);
+            ObjectOutputStream oos = new ObjectOutputStream("path/to/output/" + apkname + ".data")
+            oos.writeObject(XMLNodeTree);
+        }
+        
 
     }
     
