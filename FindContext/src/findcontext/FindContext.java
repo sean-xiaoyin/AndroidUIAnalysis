@@ -51,12 +51,22 @@ public class FindContext {
             CentralText t = ContextForOneStr(sList, i, f, TextID_table);
             sList.get(i).SetCentralText(t);
              
-            fileWriter.write(sList.get(i).GetTextID() + "~ " + sList.get(i).GetTextString().replaceAll("[\n\r]", "") + "~ " + sList.get(i).GetContext().toString().replaceAll("[\n\r]", "") + "\n");
+            //fileWriter.write(sList.get(i).GetTextID() + "~ " + sList.get(i).GetTextString().replaceAll("[\n\r]", "") + "~ " + sList.get(i).GetContext().toString().replaceAll("[\n\r]", "") + "\n");
+            WriteText(sList.get(i), fileWriter);
         }
         
         fileWriter.flush();
 	fileWriter.close();
         
+    }
+    
+    public static void WriteText (CentralText st, FileWriter fileWriter) throws Exception {
+        fileWriter.write(st.GetTextID() + "~ " + st.GetTextString().replaceAll("[\n\r]", ""));
+        
+        for (String s : st.GetContext()) {
+            fileWriter.write("~ " + s.replaceAll("[\n\r]", ""));
+        }
+        fileWriter.write("\n");
     }
         
     
