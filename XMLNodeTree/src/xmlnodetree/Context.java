@@ -11,16 +11,17 @@ import java.util.Set;
 import org.w3c.dom.Node;
 
 /**
- *
- * @author Xin
+ * @author Xue
+ * @version 1.0
+ * @since 2015-06-02
  */
 public class Context implements java.io.Serializable {
     
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	Node node;
+     * This class is used to store one node and its corresponding node set.
+     */
+    private static final long serialVersionUID = 1L;
+    Node node;
     Set<Node> nodeset = new LinkedHashSet<>();
     
     public Node Setnode ( Node n) {
@@ -39,3 +40,4 @@ public class Context implements java.io.Serializable {
     }
     
 }
+
