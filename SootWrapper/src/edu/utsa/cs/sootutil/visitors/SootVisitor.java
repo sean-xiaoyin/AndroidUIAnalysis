@@ -70,13 +70,17 @@ import soot.jimple.XorExpr;
 import soot.util.Chain;
 
 public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
+	private SootClass curClass;
+	private SootMethod curMethod;
 		
 	public static void visitAll(Chain<SootClass> classes, SootVisitor sv){
 		for(SootClass sc : classes){
 			if(sc.getName().indexOf("PlaybackEqualizer")!=-1){
 				System.out.println();
 			}
+			sv.setCurrentClass(sc);
 			for (SootMethod sm : sc.getMethods()){
+				sv.setCurrentMethod(sm);
 				if(sm.hasActiveBody()){
 					for(Unit u : sm.getActiveBody().getUnits()){
 						u.apply(sv);
@@ -86,420 +90,661 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		}
 	}
 	
+	public SootClass getCurrentClass(){
+		return this.curClass;
+	}
+	public SootMethod getCurrentMethod(){
+		return this.curMethod;
+	}
+	public void setCurrentClass(SootClass sc){
+		this.curClass = sc;
+	}
+	public void setCurrentMethod(SootMethod	sm){
+		this.curMethod = sm;
+	}
+	
 	@Override
 	public void caseAssignStmt(AssignStmt arg0) {
-		// TODO Auto-generated method stub
-		arg0.getRightOp().apply(this);
+		if(beforeAssignmentStmt(arg0)){
+			arg0.getRightOp().apply(this);
+		}
+		afterAssignmentStmt(arg0);
+	}
+	public boolean beforeAssignmentStmt(AssignStmt arg0){
+		return true;
+	}
+	public void afterAssignmentStmt(AssignStmt arg0){
 	}
 
 	@Override
 	public void caseBreakpointStmt(BreakpointStmt arg0) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void caseEnterMonitorStmt(EnterMonitorStmt arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseExitMonitorStmt(ExitMonitorStmt arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseGotoStmt(GotoStmt arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseIdentityStmt(IdentityStmt arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseIfStmt(IfStmt arg0) {
-		// TODO Auto-generated method stub
-		arg0.getCondition().apply(this);
-		arg0.getTarget().apply(this);
+		if(beforeIfStmt(arg0)){
+			arg0.getCondition().apply(this);
+			arg0.getTarget().apply(this);
+		}
+		afterIfStmt(arg0);
+	}
+	public boolean beforeIfStmt(IfStmt arg0){
+		return true;
+	}
+	public void afterIfStmt(IfStmt arg0){
 	}
 
 	@Override
 	public void caseInvokeStmt(InvokeStmt arg0) {
-		// TODO Auto-generated method stub
-		arg0.getInvokeExpr().apply(this);
+		if(beforeInvokeStmt(arg0)){
+			arg0.getInvokeExpr().apply(this);
+		}
+		afterInvokeStmt(arg0);
+	}
+	public boolean beforeInvokeStmt(InvokeStmt arg0) {
+		return true;
+	}
+	public void afterInvokeStmt(InvokeStmt arg0) {
 	}
 
 	@Override
 	public void caseLookupSwitchStmt(LookupSwitchStmt arg0) {
-		// TODO Auto-generated method stub
-		arg0.getDefaultTarget().apply(this);
-		arg0.getKey().apply(this);
-		for(int i = 0; i<arg0.getTargetCount(); i++){
-			Unit ut = arg0.getTarget(i);
-			ut.apply(this);
+		if(beforeLookupSwitchStmt(arg0)){
+			arg0.getDefaultTarget().apply(this);
+			arg0.getKey().apply(this);
+			for(int i = 0; i<arg0.getTargetCount(); i++){
+				Unit ut = arg0.getTarget(i);
+				ut.apply(this);
+			}
 		}
+		afterLookupSwitchStmt(arg0);
+	}
+	public boolean beforeLookupSwitchStmt(LookupSwitchStmt arg0) {
+		return true;
+	}
+	public void afterLookupSwitchStmt(LookupSwitchStmt arg0) {
 	}
 
 	@Override
 	public void caseNopStmt(NopStmt arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void caseRetStmt(RetStmt arg0) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void caseReturnStmt(ReturnStmt arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp().apply(this);
+		if(beforeReturnStmt(arg0)){
+			arg0.getOp().apply(this);
+		}
+		afterReturnStmt(arg0);
 	}
+	public boolean beforeReturnStmt(ReturnStmt arg0) {
+		return true;
+	}
+	public void afterReturnStmt(ReturnStmt arg0) {
+	}
+
 
 	@Override
 	public void caseReturnVoidStmt(ReturnVoidStmt arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseTableSwitchStmt(TableSwitchStmt arg0) {
-		// TODO Auto-generated method stub
-		arg0.getDefaultTarget().apply(this);
-		arg0.getKey().apply(this);
-		for(int i = 0; i<arg0.getTargets().size(); i++){
-			Unit ut = arg0.getTarget(i);
-			ut.apply(this);
+		if(beforeTableSwitchStmt()){
+			arg0.getDefaultTarget().apply(this);
+			arg0.getKey().apply(this);
+			for(int i = 0; i<arg0.getTargets().size(); i++){
+				Unit ut = arg0.getTarget(i);
+				ut.apply(this);
+			}
 		}
+		afterTableSwitchStmt();
 	}
+	public boolean beforeTableSwitchStmt() {
+		return true;
+	}
+	public void afterTableSwitchStmt() {		
+	}
+
 
 	@Override
 	public void caseThrowStmt(ThrowStmt arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void defaultCase(Object arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseAddExpr(AddExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeAddExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterAddExpr(arg0);
+	}
+	public boolean beforeAddExpr(AddExpr arg0) {
+		return true;
+	}
+	public void afterAddExpr(AddExpr arg0) {
 	}
 
 	@Override
 	public void caseAndExpr(AndExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeAndExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterAndExpr(arg0);
+	}
+	public boolean beforeAndExpr(AndExpr arg0) {
+		return true;
+	}
+	public void afterAndExpr(AndExpr arg0) {
 	}
 
 	@Override
 	public void caseCastExpr(CastExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp().apply(this);
+		if(beforeCastExpr(arg0)){
+			arg0.getOp().apply(this);
+		}
+		afterCastExpr(arg0);
 	}
+	public boolean beforeCastExpr(CastExpr arg0) {
+		return true;
+	}
+	public void afterCastExpr(CastExpr arg0) {
+	}
+
 
 	@Override
 	public void caseCmpExpr(CmpExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeCmpExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterCmpExpr(arg0);
 	}
+	public boolean beforeCmpExpr(CmpExpr arg0) {
+		return true;
+	}
+	public void afterCmpExpr(CmpExpr arg0) {
+	}
+
 
 	@Override
 	public void caseCmpgExpr(CmpgExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeCmpgExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterCmpgExpr(arg0);
 	}
+	public boolean beforeCmpgExpr(CmpgExpr arg0) {
+		return true;
+	}
+	public void afterCmpgExpr(CmpgExpr arg0) {
+	}
+
 
 	@Override
 	public void caseCmplExpr(CmplExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeCmplExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterCmplExpr(arg0);
 	}
+	public boolean beforeCmplExpr(CmplExpr arg0) {
+		return true;
+	}
+	public void afterCmplExpr(CmplExpr arg0) {
+	}
+
 
 	@Override
 	public void caseDivExpr(DivExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeDivExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterDivExpr(arg0);
 	}
+	public boolean beforeDivExpr(DivExpr arg0) {
+		return true;
+	}
+	public void afterDivExpr(DivExpr arg0) {
+	}
+
 
 	@Override
 	public void caseEqExpr(EqExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeEqExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterEqExpr(arg0);
 	}
+	public boolean beforeEqExpr(EqExpr arg0) {
+		return true;
+	}
+	public void afterEqExpr(EqExpr arg0) {
+	}
+
 
 	@Override
 	public void caseGeExpr(GeExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeGeExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterGeExpr(arg0);
 	}
+	public boolean beforeGeExpr(GeExpr arg0) {
+		return true;
+	}
+	public void afterGeExpr(GeExpr arg0) {
+	}
+
 
 	@Override
 	public void caseGtExpr(GtExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeGtExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterGtExpr(arg0);
 	}
-
+	public boolean beforeGtExpr(GtExpr arg0) {
+		return true;
+	}
+	public void afterGtExpr(GtExpr arg0) {
+	}
+	
 	@Override
 	public void caseInstanceOfExpr(InstanceOfExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp().apply(this);
+		if(beforeInstanceOfExpr(arg0)){
+			arg0.getOp().apply(this);
+		}
+		afterInstanceOfExpr(arg0);
 	}
+	public boolean beforeInstanceOfExpr(InstanceOfExpr arg0) {
+		return true;
+	}
+	public void afterInstanceOfExpr(InstanceOfExpr arg0) {
+	}
+
 
 	@Override
 	public void caseInterfaceInvokeExpr(InterfaceInvokeExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getBase().apply(this);
-		for(int i = 0; i<arg0.getArgCount(); i++){
-			Value ut = arg0.getArg(i);
-			ut.apply(this);
+		if(beforeInterfaceInvokeExpr(arg0)){
+			arg0.getBase().apply(this);
+			for(int i = 0; i<arg0.getArgCount(); i++){
+				Value ut = arg0.getArg(i);
+				ut.apply(this);
+			}
 		}
+		afterInterfaceInvokeExpr(arg0);
 	}
+	private boolean beforeInterfaceInvokeExpr(InterfaceInvokeExpr arg0) {
+		return true;
+	}
+	private void afterInterfaceInvokeExpr(InterfaceInvokeExpr arg0) {
+	}
+	
 
 	@Override
 	public void caseLeExpr(LeExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeLeExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterLeExpr(arg0);
+	}
+	private boolean beforeLeExpr(LeExpr arg0) {
+		return true;
+	}
+	private void afterLeExpr(LeExpr arg0) {
 	}
 
 	@Override
 	public void caseLengthExpr(LengthExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp().apply(this);
+		if(beforeLengthExpr(arg0)){
+			arg0.getOp().apply(this);
+		}
+		afterLengthExpr(arg0);
+	}
+	private boolean beforeLengthExpr(LengthExpr arg0) {
+		return true;
+	}
+	private void afterLengthExpr(LengthExpr arg0) {
 	}
 
 	@Override
 	public void caseLtExpr(LtExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeLtExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterLtExpr(arg0);
+	}
+	private boolean beforeLtExpr(LtExpr arg0) {
+		return true;
+	}
+	private void afterLtExpr(LtExpr arg0) {
 	}
 
 	@Override
 	public void caseMulExpr(MulExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeMulExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterMulExpr(arg0);
 	}
+	private boolean beforeMulExpr(MulExpr arg0) {
+		return true;
+	}
+	private void afterMulExpr(MulExpr arg0) {
+	}
+	
 
 	@Override
 	public void caseNeExpr(NeExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeNeExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterNeExpr(arg0);
 	}
+	private boolean beforeNeExpr(NeExpr arg0) {
+		return true;
+	}
+	private void afterNeExpr(NeExpr arg0) {
+	}
+	
 
 	@Override
 	public void caseNegExpr(NegExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp().apply(this);
+		if(beforeNegExpr(arg0)){
+			arg0.getOp().apply(this);
+		}
+		afterNegExpr(arg0);
+	}
+	private boolean beforeNegExpr(NegExpr arg0) {
+		return true;
+	}
+	private void afterNegExpr(NegExpr arg0) {
 	}
 
 	@Override
 	public void caseNewArrayExpr(NewArrayExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getSize().apply(this);
+		if(beforeNewArrayExpr(arg0)){
+			arg0.getSize().apply(this);
+		}
+		afterNewArrayExpr(arg0);
+	}
+	private boolean beforeNewArrayExpr(NewArrayExpr arg0) {
+		return true;
+	}
+	private void afterNewArrayExpr(NewArrayExpr arg0) {
 	}
 
 	@Override
 	public void caseNewExpr(NewExpr arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseNewMultiArrayExpr(NewMultiArrayExpr arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseOrExpr(OrExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeOrExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterOrExpr(arg0);
 	}
-
+	private boolean beforeOrExpr(OrExpr arg0) {
+		return true;
+	}
+	private void afterOrExpr(OrExpr arg0) {
+	}
+	
 	@Override
 	public void caseRemExpr(RemExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeRemExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterRemExpr(arg0);
+	}
+	private boolean beforeRemExpr(RemExpr arg0) {
+		return true;
+	}
+	private void afterRemExpr(RemExpr arg0) {
 	}
 
 	@Override
 	public void caseShlExpr(ShlExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeShlExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterShlExpr(arg0);
+	}
+	private boolean beforeShlExpr(ShlExpr arg0) {
+		return true;
+	}
+	private void afterShlExpr(ShlExpr arg0) {
 	}
 
 	@Override
 	public void caseShrExpr(ShrExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeShrExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterShrExpr(arg0);
+	}
+	private boolean beforeShrExpr(ShrExpr arg0) {
+		return true;
+	}
+	private void afterShrExpr(ShrExpr arg0) {
 	}
 
 	@Override
 	public void caseSpecialInvokeExpr(SpecialInvokeExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getBase().apply(this);
-		for(int i = 0; i<arg0.getArgCount(); i++){
-			Value ut = arg0.getArg(i);
-			ut.apply(this);
+		if(beforeSpecialInvokeExpr(arg0)){
+			arg0.getBase().apply(this);
+			for(int i = 0; i<arg0.getArgCount(); i++){
+				Value ut = arg0.getArg(i);
+				ut.apply(this);
+			}
 		}
+		afterSpecialInvokeExpr(arg0);
+	}
+	private boolean beforeSpecialInvokeExpr(SpecialInvokeExpr arg0) {
+		return true;
+	}
+	private void afterSpecialInvokeExpr(SpecialInvokeExpr arg0) {
 	}
 
 	@Override
 	public void caseStaticInvokeExpr(StaticInvokeExpr arg0) {
-		// TODO Auto-generated method stub
-		for(int i = 0; i<arg0.getArgCount(); i++){
-			Value ut = arg0.getArg(i);
-			ut.apply(this);
+		if(beforeStaticInvokeExpr(arg0)){
+			for(int i = 0; i<arg0.getArgCount(); i++){
+				Value ut = arg0.getArg(i);
+				ut.apply(this);
+			}
 		}
+		afterStaticInvokeExpr(arg0);
 	}
+	private boolean beforeStaticInvokeExpr(StaticInvokeExpr arg0) {
+		return true;
+	}
+	private void afterStaticInvokeExpr(StaticInvokeExpr arg0) {
+	}	
 
 	@Override
 	public void caseSubExpr(SubExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeSubExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterSubExpr(arg0);
+	}
+	private boolean beforeSubExpr(SubExpr arg0) {
+		return true;
+	}
+	private void afterSubExpr(SubExpr arg0) {
 	}
 
 	@Override
 	public void caseUshrExpr(UshrExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeUshrExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterUshrExpr(arg0);
 	}
-
+	private boolean beforeUshrExpr(UshrExpr arg0) {
+		return true;
+	}
+	private void afterUshrExpr(UshrExpr arg0) {
+	}
+	
 	@Override
 	public void caseVirtualInvokeExpr(VirtualInvokeExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getBase().apply(this);
-		for(int i = 0; i<arg0.getArgCount(); i++){
-			Value ut = arg0.getArg(i);
-			ut.apply(this);
+		if(beforeVirtualInvokeExpr(arg0)){
+			arg0.getBase().apply(this);
+			for(int i = 0; i<arg0.getArgCount(); i++){
+				Value ut = arg0.getArg(i);
+				ut.apply(this);
+			}
 		}
+		afterVirtualInvokeExpr(arg0);
 	}
+	private boolean beforeVirtualInvokeExpr(VirtualInvokeExpr arg0) {
+		return true;
+	}
+	private void afterVirtualInvokeExpr(VirtualInvokeExpr arg0) {
+	}	
 
 	@Override
 	public void caseXorExpr(XorExpr arg0) {
-		// TODO Auto-generated method stub
-		arg0.getOp1().apply(this);
-		arg0.getOp2().apply(this);
+		if(beforeXorExpr(arg0)){
+			arg0.getOp1().apply(this);
+			arg0.getOp2().apply(this);
+		}
+		afterXorExpr(arg0);
 	}
+	private boolean beforeXorExpr(XorExpr arg0) {
+		return true;
+	}
+	private void afterXorExpr(XorExpr arg0) {
+	}	
 
 	@Override
 	public void caseClassConstant(ClassConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseDoubleConstant(DoubleConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseFloatConstant(FloatConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseIntConstant(IntConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseLongConstant(LongConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseNullConstant(NullConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseStringConstant(StringConstant arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseArrayRef(ArrayRef arg0) {
-		// TODO Auto-generated method stub
-		arg0.getBase().apply(this);
+		if(beforeArrayRef(arg0)){
+			arg0.getBase().apply(this);
+		}
+		afterArrayRef(arg0);
+		
 	}
+	private boolean beforeArrayRef(ArrayRef arg0) {
+		return true;
+	}
+	private void afterArrayRef(ArrayRef arg0) {
+	}	
 
 	@Override
 	public void caseCaughtExceptionRef(CaughtExceptionRef arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseInstanceFieldRef(InstanceFieldRef arg0) {
-		// TODO Auto-generated method stub
-		arg0.getBase().apply(this);
+		if(beforeInstanceFieldRef(arg0)){
+			arg0.getBase().apply(this);
+		}
+		afterInstanceFieldRef(arg0);
+		
 	}
+	private boolean beforeInstanceFieldRef(InstanceFieldRef arg0) {
+		return true;
+	}
+	private void afterInstanceFieldRef(InstanceFieldRef arg0) {
+	}
+
 
 	@Override
 	public void caseParameterRef(ParameterRef arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseStaticFieldRef(StaticFieldRef arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseThisRef(ThisRef arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseLocal(Local arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void caseDynamicInvokeExpr(DynamicInvokeExpr v) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
