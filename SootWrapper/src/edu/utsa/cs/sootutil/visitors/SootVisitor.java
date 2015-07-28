@@ -105,15 +105,15 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 	
 	@Override
 	public void caseAssignStmt(AssignStmt arg0) {
-		if(beforeAssignmentStmt(arg0)){
+		if(beforeAssignStmt(arg0)){
 			arg0.getRightOp().apply(this);
 		}
-		afterAssignmentStmt(arg0);
+		afterAssigntmt(arg0);
 	}
-	public boolean beforeAssignmentStmt(AssignStmt arg0){
+	public boolean beforeAssignStmt(AssignStmt arg0){
 		return true;
 	}
-	public void afterAssignmentStmt(AssignStmt arg0){
+	public void afterAssigntmt(AssignStmt arg0){
 	}
 
 	@Override
@@ -720,10 +720,10 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		afterInstanceFieldRef(arg0);
 		
 	}
-	private boolean beforeInstanceFieldRef(InstanceFieldRef arg0) {
+	public boolean beforeInstanceFieldRef(InstanceFieldRef arg0) {
 		return true;
 	}
-	private void afterInstanceFieldRef(InstanceFieldRef arg0) {
+	public void afterInstanceFieldRef(InstanceFieldRef arg0) {
 	}
 
 

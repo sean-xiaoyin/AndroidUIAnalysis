@@ -1,0 +1,214 @@
+commit 8422143b32fe6bf55803a09089318dfba5cec745
+Author: Sean <wxy.6056@gmail.com>
+Date:   Mon Jul 27 14:31:06 2015 -0500
+
+    add basic UI flow graph visitor
+
+commit be7ed5d37bc86ee911b08a94723fe14537587627
+Merge: 20b2268 515d610
+Author: Sean <wxy.6056@gmail.com>
+Date:   Mon Jul 27 12:59:56 2015 -0500
+
+    Merge branch 'master' of https://github.com/sean-xiaoyin/AndroidUIAnalysis
+
+commit 20b2268f440eb9e0eceb5e51fc0651adfc712d7c
+Author: Sean <wxy.6056@gmail.com>
+Date:   Mon Jul 27 12:58:57 2015 -0500
+
+    add android MT to the repo
+
+commit 515d61053425be5154bcaf9021135670a30cecf1
+Author: sean <wxy.6056@gmail.com>
+Date:   Fri Jul 24 17:47:23 2015 -0500
+
+    soot wrapper project update to add before and after visit methods
+
+commit bb0cb93995760da28730bc88d1e9aee99dbdebf3
+Author: Xue Qin <xueqin.michelle@gmail.com>
+Date:   Mon Jun 22 02:33:15 2015 -0500
+
+    Find Contexts including Hidden ones, for single apk. V1.0
+
+commit 171f4e01d593bc6ed35b8a95df03d908de4fa028
+Author: Xue Qin <xueqin.michelle@gmail.com>
+Date:   Tue Jun 2 01:19:56 2015 -0500
+
+    Update Chinese output format
+
+commit d234cd5e16bc5e1324fc793d5fff597754d79169
+Author: Xue Qin <xueqin.michelle@gmail.com>
+Date:   Tue Jun 2 01:16:17 2015 -0500
+
+    Updated comments and fix stackoverflow error.
+
+commit 725c61f5aafc890f9e608257f9cba44eaf3633c1
+Author: sean <wxy.6056@gmail.com>
+Date:   Fri May 29 12:21:26 2015 -0500
+
+    change style and remove legacy code
+
+commit 1244845983e95c4949582e0cb892e34d8be6645a
+Author: Sean <wxy.6056@gmail.com>
+Date:   Mon May 4 14:54:28 2015 -0500
+
+    Update XMLNodeTree.java
+    
+    add serialization to xmlnodetree
+
+commit a3cd4632563f0a12a2163416c9bbe1ea4ba81720
+Author: Sean <wxy.6056@gmail.com>
+Date:   Mon May 4 14:21:05 2015 -0500
+
+    Update XMLNodeTree.java
+    
+    extraction of nodes with hashtable
+
+commit b150f17f0fef46ea1f05d697cf01192b496b23cd
+Author: Xue Qin <xueqin.michelle@gmail.com>
+Date:   Mon May 4 02:17:23 2015 -0500
+
+    Conversion from XML layout to Tree.
+
+commit 1406486586e84493c04733ed6c8fbf17d5349ad7
+Author: Xue Qin <xueqin.michelle@gmail.com>
+Date:   Mon May 4 02:14:22 2015 -0500
+
+    Find context for specific string.
+
+commit 1a694f04408a31d7b5cdc6f9b25addcc79170b75
+Author: Xue Qin <xueqin.michelle@gmail.com>
+Date:   Mon Apr 6 03:06:16 2015 -0500
+
+    BLEU Translator v1.0: calculate bleu score for Chinese & Spanish
+
+commit 85bb60fc85150678bb831d0459332f5a21d9f0f9
+Merge: 0a514ed 81e3536
+Author: Sean <wxy.6056@gmail.com>
+Date:   Mon Nov 24 22:30:54 2014 -0600
+
+    Merge branch 'master' of https://github.com/sean-xiaoyin/AndroidUIAnalysis
+
+commit 81e353632d54c3c21ae0296c9dc2e7911f6f02e3
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Mon Nov 24 13:43:56 2014 -0600
+
+    added current call graphs
+
+commit 230b8c9108fe9530af45d1260c0915cac68e1f6a
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Sun Nov 16 22:41:56 2014 -0600
+
+    converted all new apks to jars
+
+commit a9e5109cf4c8f5fb4f5cf3eb62809e5189e4c161
+Author: sean <wxy.6056@gmail.com>
+Date:   Fri Nov 14 13:19:23 2014 -0600
+
+    add a number of supporting jar files to android lib
+
+commit 2dfb88a80d4e77ba631103f34eb1abb6d26065e5
+Author: sean <wxy.6056@gmail.com>
+Date:   Wed Nov 12 16:33:26 2014 -0600
+
+    delete temporary files
+
+commit 5f3d58a90201bc337dd552e65278f98365adc954
+Merge: 0d1a5b1 611bd2d
+Author: sean <wxy.6056@gmail.com>
+Date:   Wed Nov 12 16:31:14 2014 -0600
+
+    Merge branch 'master' of https://github.com/sean-xiaoyin/AndroidUIAnalysis
+
+commit 0d1a5b185a78c945d7902297dcbf6930ab8a77f4
+Author: sean <wxy.6056@gmail.com>
+Date:   Wed Nov 12 16:30:34 2014 -0600
+
+    add sootwrapper, a soot wrapping project for the ease of Soot usage
+
+commit 0a514ed34aeaec1ebd19bbc69fab1cf564687d29
+Merge: 61ddaca 611bd2d
+Author: Sean <wxy.6056@gmail.com>
+Date:   Wed Nov 12 03:26:55 2014 -0600
+
+    Merge branch 'master' of https://github.com/sean-xiaoyin/AndroidUIAnalysis
+
+commit 61ddaca924539a712a0c03d1b5a187e87086d950
+Author: Sean <wxy.6056@gmail.com>
+Date:   Wed Nov 12 03:24:36 2014 -0600
+
+    add top 500 apk to the repo
+
+commit 611bd2d935c568c89cfe1e811d81127e2a9b997c
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Mon Nov 10 14:04:14 2014 -0600
+
+    added CallStruct
+
+commit 66e452ff9b184a8b6f608a5cc4d1c6c503e608f0
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Mon Nov 3 10:59:43 2014 -0600
+
+    added CallStruct
+
+commit e84b9191ad5a7f7668a26b79e0422c456e0de685
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Mon Nov 3 09:21:46 2014 -0600
+
+    additional jars added
+
+commit 2aad4b0427895848df57854a7e308f73499b6f08
+Merge: b5813cd 111f83e
+Author: sean <wxy.6056@gmail.com>
+Date:   Fri Oct 17 10:14:24 2014 -0500
+
+    Merge branch 'master' of https://github.com/sean-xiaoyin/AndroidUIAnalysis
+    To include Eric's new change
+
+commit b5813cd80c3f54d6e62532a78580f80759e80982
+Author: sean <wxy.6056@gmail.com>
+Date:   Fri Oct 17 10:14:00 2014 -0500
+
+    add android framework to the android lib folder for soot classpath
+
+commit 111f83e671c68d616d83f0201340e2df9929440d
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Fri Oct 17 09:04:10 2014 -0500
+
+    added jars and src files
+
+commit 22a306e95ed9ab79a7270a3ec86ef5096e8aa8ec
+Merge: 540bfe1 8654119
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Mon Sep 29 22:52:07 2014 -0500
+
+    Merge branch 'master' of https://github.com/sean-xiaoyin/AndroidUIAnalysis
+
+commit 540bfe11a4da5eb8cdc2b7f4b45b1e4757b86322
+Author: rmv693 <artemusxi@gmail.com>
+Date:   Mon Sep 29 22:51:38 2014 -0500
+
+    added all created jars
+
+commit 8654119cb0e5e773ec98cde5f3232ba0024a787f
+Author: Sean <wxy.6056@gmail.com>
+Date:   Sat Sep 6 22:54:20 2014 -0500
+
+    add the an example for soot
+
+commit 977f7782e0f3f50e0fa4c12021972fdfa9ae329e
+Author: sean <wxy.6056@gmail.com>
+Date:   Sat Aug 30 15:34:21 2014 -0500
+
+    add readme files for three sub projects
+
+commit b01738f9f1b2b36540746fcfcab55f44c8da2bbb
+Author: sean <wxy.6056@gmail.com>
+Date:   Sat Aug 30 15:20:51 2014 -0500
+
+    build the initial file structure and data / libs
+
+commit b33f4ae3bb6ebb46a6a682c7f095a75645f1cc87
+Author: Sean <wxy.6056@gmail.com>
+Date:   Sat Aug 30 14:25:54 2014 -0500
+
+    Create README.md
