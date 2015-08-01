@@ -1,6 +1,7 @@
 package edu.usta.androidmt.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,9 @@ public class PropModel implements Serializable{
 	for(String id : loader.getIdSentenceTable().keySet()){
 	    SentencePair sp = loader.getIdSentenceTable().get(id);
 	    List<String> contextWords = loader.getIdContextTable().get(id);
+	    if(contextWords == null){
+		contextWords = new ArrayList<String>();
+	    }
 	    for(String word : contextWords){
 		Integer i = contextWordPropTable.get(word);
 		if(i == null){
@@ -38,11 +42,13 @@ public class PropModel implements Serializable{
 	    Set<String> toPhrases = sp.getToPhrases();
 	    for(String from : fromPhrases){
 		List<PhrasePair> pairs = loader.getPhraseTable().get(from);
-		for(PhrasePair pair : pairs){
-		    if(toPhrases.contains(pair.getTo())){
-			pair.addCount();
-			for(String word : contextWords){
-			    pair.addContext(word);
+		if(pairs!=null){
+		    for(PhrasePair pair : pairs){
+			if(toPhrases.contains(pair.getTo())){
+			    pair.addCount();
+			    for(String word : contextWords){
+				pair.addContext(word);
+			    }
 			}
 		    }
 		}
@@ -67,7 +73,9 @@ public class PropModel implements Serializable{
     public double getContextsProp(PhrasePair pair, List<String> context){
 	double prop = pair.getBasicValue();
 	for(String word : context){
-	    prop = prop * pair.getContextValue(word, 1.0*this.contextWordPropTable.get(word)/this.sentenceSum);
+	    if(this.contextWordPropTable.get(word)!=null){
+		prop = prop * pair.getContextValue(word, 1.0*this.contextWordPropTable.get(word)/this.sentenceSum);
+	    }
 	}
 	return prop;
     }

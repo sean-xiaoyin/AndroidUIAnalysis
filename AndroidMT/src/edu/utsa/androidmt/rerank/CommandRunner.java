@@ -5,12 +5,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import edu.utsa.androidmt.rerank.CommandRunner.CommandResult;
+
 public class CommandRunner {
     public static CommandResult runCommand(String command) throws IOException,
 	    InterruptedException {
 	Process p = Runtime.getRuntime().exec(command);
 	return CommandRunner.getResult(p);
     }
+
 
     public static CommandResult runCommand(String command, File workDir)
 	    throws IOException, InterruptedException {
@@ -81,6 +84,20 @@ public class CommandRunner {
 		return this.errOutput;
 	    }
 	    return "";
+	}
+    }
+
+    public static CommandResult runCommand(String command, boolean shell) throws IOException,
+	InterruptedException {
+	if(shell){
+	    String[]  commands = new String[3];
+	    commands[0] = "/bin/sh";
+	    commands[1] = "-c";
+	    commands[2] = command;
+	    Process p = Runtime.getRuntime().exec(commands);
+	    return CommandRunner.getResult(p);
+	}else{
+	    return CommandRunner.runCommand(command);
 	}
     }
 }

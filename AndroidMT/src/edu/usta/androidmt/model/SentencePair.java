@@ -1,6 +1,8 @@
 package edu.usta.androidmt.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -24,16 +26,24 @@ public class SentencePair {
 	this.id = id;
     }
     public Set<String> getFromPhrases() {
-	return getPhrases(this.from);
+	return getPhrases(this.from, 4);
     }
     public Set<String> getToPhrases() {
-	return getPhrases(this.to);
+	return getPhrases(this.to, 4);
     }
-    public static Set<String> getPhrases(String sentence) {
-	HashSet<String> phrases = new HashSet<String>();
+    public static Set<String> getPhrases(String sentence, int gramSize) {
+	List<String> phraseList = new ArrayList<String>();
 	StringTokenizer st = new StringTokenizer(sentence);
 	while(st.hasMoreTokens()){
-	    phrases.add(st.nextToken());
+	    phraseList.add(st.nextToken());
+	}
+	HashSet<String> phrases = new HashSet<String>();
+	for(int i = 0; i < phraseList.size(); i++){
+	    String phrase = "";
+	    for(int j = i; j >= 0 && j > i - gramSize; j--){
+		phrase = phraseList.get(j) + " " + phrase;
+		phrases.add(phrase.trim());
+	    }
 	}
 	return phrases;
     }

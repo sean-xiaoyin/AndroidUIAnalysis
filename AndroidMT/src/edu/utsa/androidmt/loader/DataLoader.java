@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import edu.usta.androidmt.model.PhrasePair;
 import edu.usta.androidmt.model.SentencePair;
@@ -29,10 +30,11 @@ public class DataLoader {
 	int lineNum = 0;
 	for(String line = in.readLine(); line!=null; line = in.readLine()){
 	    this.phraseLines.add(line);
-	    String[] parts = line.split("|||");
-	    String from = parts[0];
-	    String to = parts[1];
-	    String scores = parts[2];
+	    String[] parts = line.split(Pattern.quote("|||"));
+	    String from = parts[0].trim();
+	    String to = parts[1].trim();
+	    String scores = parts[2].trim();
+
 	    double prop = Double.parseDouble(scores.split(" ")[0].trim());
 	    PhrasePair pp = new PhrasePair(from, to, prop);
 	    this.phraseLineTable.put(pp, lineNum);
@@ -47,33 +49,41 @@ public class DataLoader {
 	in.close();
     }
     private void loadTrainingData(String path) throws IOException{
-	BufferedReader in = new BufferedReader(new FileReader(path));
-	for(String line = in.readLine(); line!=null; line = in.readLine()){
-	    if(line.startsWith("English:")){
-		String id = line.substring(9);
-		String from = in.readLine().substring(8);
-		String to = in.readLine().substring(10);
-		SentencePair sp = new SentencePair(from, to, id);
-		this.idSentenceTable.put(id, sp);
+	File f = new File(path);
+	for(String txt : f.list()){
+	    BufferedReader in = new BufferedReader(new FileReader(path + "/" + txt));
+	    for(String line = in.readLine(); line!=null; line = in.readLine()){
+		if(line.startsWith("String_ID:")){
+		    String id = line.substring(10) + ":" + txt;
+		    String from = in.readLine().substring(8);
+		    String to = in.readLine().substring(10);
+		    SentencePair sp = new SentencePair(from, to, id);
+		    this.idSentenceTable.put(id, sp);
+		}
 	    }
+	    in.close();
 	}
-	in.close();
     }
 
     private void loadContexts(String path) throws IOException{
 	File f = new File(path);
 	for(String txt : f.list()){
-	    BufferedReader in = new BufferedReader(new FileReader(path));
+	    BufferedReader in = new BufferedReader(new FileReader(path + "/" + txt));
 	    for(String line = in.readLine(); line!=null; line = in.readLine()){
 		String[] items = line.split("~");
-		String id = txt + "_" + items[0].trim();
+		String id = items[0].trim() + ":" + txt;
 		List<String> contextWords = new ArrayList<String>();
 		this.idContextTable.put(id, contextWords);
-		String[] contexts = items[2].substring(1, items[2].length() - 1).split(",");
-		for(String context : contexts){
-		    String[] words = context.split(" ");
-		    for(String word : words){
-			contextWords.add(word.trim());
+		
+		for(int i = 2; i< items.length; i++){
+		    String context = items[i].trim();
+		    if(!context.contains("smali") && context.length() > 0){
+			String[] words = context.split(" ,");
+			for(String word : words){
+			    if(word.trim().length() > 0){
+				contextWords.add(word.trim());
+			    }
+			}
 		    }
 		}
 	    

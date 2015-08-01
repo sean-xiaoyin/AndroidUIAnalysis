@@ -25,11 +25,13 @@ public class PropUpdater {
     }
     public void updateProp(List<String> sentences, Hashtable<String, List<String>> contexts) throws IOException{
 	for(String sentence : sentences){
-	    Set<String> phrases = SentencePair.getPhrases(sentence);
+	    Set<String> phrases = SentencePair.getPhrases(sentence, 4);
 	    for(String phrase : phrases){
 		List<PhrasePair> pairs = this.model.getPairs(phrase);
-		for (PhrasePair pp : pairs){
-		    updatePhraseFile(this.phraseLineTable.get(pp), this.model.getContextsProp(pp, contexts.get(sentence)));
+		if(pairs!=null){
+		    for (PhrasePair pp : pairs){
+			updatePhraseFile(this.phraseLineTable.get(pp), this.model.getContextsProp(pp, contexts.get(sentence)));
+		    }
 		}
 	    }
 	}
@@ -41,7 +43,7 @@ public class PropUpdater {
     }
     private void updatePhraseFile(int lineNum, double contextsProp) {
 	String line = this.phraseLines.get(lineNum);
-	int index1 = line.indexOf("|||" + 3, line.indexOf("|||") + 3);
+	int index1 = line.indexOf("|||", line.indexOf("|||") + 3) + 3;
 	int index2 = line.indexOf(" ", index1);
 	String updated = line.substring(0, index1) + contextsProp + line.substring(index2);
 	this.phraseLines.set(lineNum, updated);

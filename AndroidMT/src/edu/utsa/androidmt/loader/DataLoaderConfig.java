@@ -7,13 +7,13 @@ public class DataLoaderConfig {
     private String contextsPath;
     private String cmodelPath;
     public static String LAN = "es";
-    public static String WORK_NAME = "work_nocontext_" + LAN;
+    public static String WORK_NAME = "filter-context-" + LAN;
     public static String HOME_DIR = "/home/sean/projects/ASE_ML";
     
     public static DataLoaderConfig defaultTrainConfig(){
 	DataLoaderConfig conf = new DataLoaderConfig();
-	conf.phraseTablePath = HOME_DIR + "/uitrans/workdir/" + WORK_NAME + "/train/model/phrase-table.txt";
-	conf.inputDataPath = HOME_DIR + "/uitrans/allign-" + LAN + "-final_cross/sub1/train";
+	conf.phraseTablePath = HOME_DIR + "/uitrans/workdirs/" + WORK_NAME + "/phrase-table.0-0.1.1";
+	conf.inputDataPath = HOME_DIR + "/uitrans/allign-" + LAN + "-final_cross/sub_1/train";
 	conf.contextsPath = HOME_DIR + "/uitrans/context_all";
 	conf.cmodelPath = "/home/sean/projects/ASE_ML/uitrans/temp/prop.model";
 	return conf;
@@ -21,8 +21,8 @@ public class DataLoaderConfig {
 
     public static DataLoaderConfig defaultTestConfig(){
 	DataLoaderConfig conf = new DataLoaderConfig();
-	conf.phraseTablePath = HOME_DIR + "/uitrans/workdir/" + WORK_NAME + "/train/model/phrase-table.txt";
-	conf.inputDataPath = HOME_DIR + "/uitrans/allign-" + LAN + "-final_cross/sub1/test";
+	conf.phraseTablePath = HOME_DIR + "/uitrans/workdirs/" + WORK_NAME + "/phrase-table.0-0.1.1";
+	conf.inputDataPath = HOME_DIR + "/uitrans/allign-" + LAN + "-final_cross/sub_1/test";
 	conf.contextsPath = HOME_DIR + "/uitrans/context_all";
 	conf.cmodelPath = "/home/sean/projects/ASE_ML/uitrans/temp/prop.model";
 	return conf;

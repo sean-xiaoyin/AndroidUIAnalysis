@@ -18,12 +18,19 @@ import edu.usta.androidmt.model.PropModel;
 import edu.usta.androidmt.model.SentencePair;
 import edu.utsa.androidmt.loader.DataLoader;
 import edu.utsa.androidmt.loader.DataLoaderConfig;
+import edu.utsa.androidmt.rerank.CommandRunner.CommandResult;
 
 public class MTDriver {
+    public static void main(String args[]) throws ClassNotFoundException, IOException, InterruptedException{
+	MTDriver driver = new MTDriver();
+	driver.run();
+    }
     public void run() throws IOException, ClassNotFoundException, InterruptedException{
 	DataLoaderConfig trainConfig = DataLoaderConfig.defaultTrainConfig();
+	System.out.println("loading the model...");
 	File modelFile = new File(trainConfig.getContextModelPath());
 	PropModel model = modelFile.exists() ? loadModel(trainConfig.getContextModelPath()) : generateModel(trainConfig);
+	System.out.println("performing translation...");
 	translate(model, DataLoaderConfig.defaultTestConfig(), "");
     }
     
@@ -50,7 +57,6 @@ public class MTDriver {
     public void translate(PropModel model, DataLoaderConfig config, String outputPath) throws IOException, InterruptedException{
 	DataLoader loader = new DataLoader();
 	loader.loadAll(config);
-	List<String> translated = new ArrayList<String>();
 	
 	PropUpdater update = new PropUpdater(model, config.getPhraseTablePath(), loader.getPhraseLineTable(), loader.getPhraseLines());
 	
@@ -59,39 +65,41 @@ public class MTDriver {
 	HashSet<String> existed = new HashSet<String>();
 	List<String> ids = new ArrayList<String>();
 	ids.addAll(loader.getIdSentenceTable().keySet());
+	System.out.println("translating sentences, total " + ids.size());
+	int count = 0;
 	for(int i = 0; i < ids.size(); i++){
 	    String id = ids.get(i);
 	    SentencePair sp = loader.getIdSentenceTable().get(id);
-	    List<String> context = loader.getIdContextTable().get(id);
-	    froms.add(sp.getFrom());
-	    contexts.put(sp.getFrom(), context);
-	    if(isBatch(froms, existed)){		
-		update.updateProp(froms, contexts);
-		runTranslation(MosesConfig.defaultConfig(), froms);
+	    String from = sp.getFrom();
+	    if(isBatch(from, existed)){
+		count = count + 1;
+		System.out.println("translating batch " + count + ", total sentences " + froms.size());
+		System.out.println("updating properties ");
+		//update.updateProp(froms, contexts);
+		System.out.println("running translation ");
+		//runTranslation(MosesConfig.defaultConfig(), froms);
 		froms.clear();
 		contexts.clear();
 		existed.clear();
 		i = i - 1;
+	    }else{
+		List<String> context = loader.getIdContextTable().get(id);
+		if(context == null){
+		    context = new ArrayList<String>();
+		}
+		contexts.put(from, context);
+		froms.add(from);
 	    }
 	}
-	
-		
-	PrintWriter pw = new PrintWriter(new FileWriter(outputPath));
-	for(String line : translated){
-	    pw.println(line);
-	}
-	pw.close();
-	
     }
 
-    private boolean isBatch(List<String> froms, HashSet<String> existed) {
-	for(String from : froms){
-	    Set<String> phrases = SentencePair.getPhrases(from);
-	    for(String phrase : phrases){
-		if(existed.contains(phrase)){
-		    return true;
-		}
+    private boolean isBatch(String from, HashSet<String> existed) {
+	Set<String> phrases = SentencePair.getPhrases(from, 1);
+	for(String phrase : phrases){
+	    if(existed.contains(phrase)){
+		return true;
 	    }
+	    existed.add(phrase);
 	}
 	return false;
     }
@@ -102,17 +110,20 @@ public class MTDriver {
 	    pw.println(from);
 	}
 	pw.close();
-	
-	CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < " 
-		+ mosesConfig.tempdir + "/temp.txt > " + mosesConfig.tempdir + "/temp.tok");
+	System.out.println("tokenizing... ");
+
+	CommandResult cr = CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < " 
+		+ mosesConfig.tempdir + "/temp.txt > " + mosesConfig.tempdir + "/temp.tok", true);
+	System.out.println(cr.getStdOut());
 	CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/recaser/truecase.perl --model " 
 		+ mosesConfig.mosesdir + "/corpus/truecase-model.en < " + mosesConfig.tempdir + "/temp.tok > " 
-		+ mosesConfig.tempdir + "/temp.true");
+		+ mosesConfig.tempdir + "/temp.true", true);
+	System.out.println("translating... ");
 	
 	CommandRunner.runCommand("nohup nice " + mosesConfig.mosesdir + "/mosesdecoder/bin/moses -f " 
-		+ mosesConfig.workdir + "/mert-work/moses.ini < " + mosesConfig.tempdir + "/temp.true > " + mosesConfig.tempdir
-		+ "/temp.trans 2> " + mosesConfig.tempdir + "/test.out");
-	CommandRunner.runCommand("cat " + mosesConfig.tempdir + "/temp.trans >> " + mosesConfig.tempdir + "/final.trans");
+		+ mosesConfig.workdir + "/moses.ini < " + mosesConfig.tempdir + "/temp.true > " + mosesConfig.tempdir
+		+ "/temp.trans 2> " + mosesConfig.tempdir + "/test.out", true);
+	CommandRunner.runCommand("cat " + mosesConfig.tempdir + "/temp.trans >> " + mosesConfig.tempdir + "/final.trans", true);
     }
     
 }

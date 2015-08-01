@@ -17,6 +17,8 @@ public class PhrasePair implements Serializable{
     public PhrasePair(String from, String to, double basicValue){
 	this.count = 0;
 	this.contexts = new Hashtable<String, Integer>();
+	this.from = from;
+	this.to = to;
 	this.basicValue = basicValue;
     }
     public double getBasicValue() {
@@ -53,6 +55,9 @@ public class PhrasePair implements Serializable{
 	}
     }
     public double getContextValue(String word, double wordprop){
+	if(this.contexts.get(word) == null){
+	    return 1.0;
+	}
 	double condprop = (1.0 * this.contexts.get(word) + 1) / (this.getCount() + (1.0/wordprop));
 	return condprop / wordprop ;
     }

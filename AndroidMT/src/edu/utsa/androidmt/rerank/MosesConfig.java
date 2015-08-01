@@ -10,7 +10,7 @@ public class MosesConfig {
     
     public static MosesConfig defaultConfig() {
 	MosesConfig conf = new MosesConfig();
-	conf.workdir = DataLoaderConfig.HOME_DIR + "/uitrans/workdir/work_nocontext_es";
+	conf.workdir = DataLoaderConfig.HOME_DIR + "/uitrans/workdirs/filter-context-es";
 	conf.mosesdir = DataLoaderConfig.HOME_DIR;
 	conf.tempdir = DataLoaderConfig.HOME_DIR + "/uitrans/temp";
 	return conf;
