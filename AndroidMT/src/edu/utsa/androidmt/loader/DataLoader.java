@@ -21,7 +21,7 @@ public class DataLoader {
     
     public void loadAll(DataLoaderConfig conf) throws IOException{
 	this.loadPhraseTable(conf.getPhraseTablePath());
-	this.loadTrainingData(conf.getInputDataPath());
+	this.loadInputData(conf.getIDPath(), conf.getOriPath(), conf.getTransPath());
 	this.loadContexts(conf.getContextsPath());
     }
 
@@ -48,21 +48,29 @@ public class DataLoader {
 	}
 	in.close();
     }
-    private void loadTrainingData(String path) throws IOException{
-	File f = new File(path);
-	for(String txt : f.list()){
-	    BufferedReader in = new BufferedReader(new FileReader(path + "/" + txt));
-	    for(String line = in.readLine(); line!=null; line = in.readLine()){
-		if(line.startsWith("String_ID:")){
-		    String id = line.substring(10) + ":" + txt;
-		    String from = in.readLine().substring(8);
-		    String to = in.readLine().substring(10);
+    private void loadInputData(String idPath, String oriPath, String transPath) throws IOException{
+	    List<String> ids = fetchLines(idPath);
+	    List<String> froms = fetchLines(oriPath);
+	    List<String> tos = fetchLines(transPath);
+	    if(ids.size()==froms.size() && froms.size() == tos.size()){
+		for(int i = 0; i < froms.size(); i++){
+		    String id = ids.get(i);
+		    String from = froms.get(i);
+		    String to = tos.get(i);
 		    SentencePair sp = new SentencePair(from, to, id);
 		    this.idSentenceTable.put(id, sp);
 		}
 	    }
-	    in.close();
+    }
+
+    private List<String> fetchLines(String path) throws IOException {
+	BufferedReader in = new BufferedReader(new FileReader(path));
+	List<String> lines = new ArrayList<String>();
+	for(String line = in.readLine(); line!=null; line = in.readLine()){
+	    lines.add(line);
 	}
+	in.close();
+	return lines;
     }
 
     private void loadContexts(String path) throws IOException{

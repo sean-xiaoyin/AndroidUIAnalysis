@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.utsa.androidmt.rerank.CommandRunner.CommandResult;
-
 public class CommandRunner {
     public static CommandResult runCommand(String command) throws IOException,
 	    InterruptedException {

@@ -9,7 +9,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
@@ -60,50 +59,62 @@ public class MTDriver {
 	
 	PropUpdater update = new PropUpdater(model, config.getPhraseTablePath(), loader.getPhraseLineTable(), loader.getPhraseLines());
 	
-	List<String> froms = new ArrayList<String>();
-	Hashtable<String, List<String>> contexts = new Hashtable<String, List<String>>();
-	HashSet<String> existed = new HashSet<String>();
 	List<String> ids = new ArrayList<String>();
 	ids.addAll(loader.getIdSentenceTable().keySet());
 	System.out.println("translating sentences, total " + ids.size());
 	int count = 0;
-	for(int i = 0; i < ids.size(); i++){
-	    String id = ids.get(i);
-	    SentencePair sp = loader.getIdSentenceTable().get(id);
-	    String from = sp.getFrom();
-	    if(isBatch(from, existed)){
-		count = count + 1;
-		System.out.println("translating batch " + count + ", total sentences " + froms.size());
-		System.out.println("updating properties ");
-		//update.updateProp(froms, contexts);
-		System.out.println("running translation ");
-		//runTranslation(MosesConfig.defaultConfig(), froms);
-		froms.clear();
-		contexts.clear();
-		existed.clear();
-		i = i - 1;
-	    }else{
+
+	List<List<String>> batches = fetchBatches(ids, loader);
+	
+	for(List<String> batch : batches){
+	    List<String> froms = new ArrayList<String>();
+	    Hashtable<String, List<String>> contexts = new Hashtable<String, List<String>>();
+	    for(String id : batch){
+		SentencePair sp = loader.getIdSentenceTable().get(id);
+		String from = sp.getFrom();
 		List<String> context = loader.getIdContextTable().get(id);
 		if(context == null){
 		    context = new ArrayList<String>();
 		}
 		contexts.put(from, context);
-		froms.add(from);
-	    }
+		froms.add(from);		
+	    }	    
+	    count = count + 1;
+	    System.out.println("translating batch " + count + ", total sentences " + froms.size());
+	    update.updateProp(froms, contexts);
+            runTranslation(MosesConfig.defaultConfig(), froms);
 	}
     }
 
-    private boolean isBatch(String from, HashSet<String> existed) {
-	Set<String> phrases = SentencePair.getPhrases(from, 1);
-	for(String phrase : phrases){
-	    if(existed.contains(phrase)){
-		return true;
+    private List<List<String>> fetchBatches(List<String> ids, DataLoader loader) {
+	List<List<String>> batches = new ArrayList<List<String>>();
+	List<Set<String>> phraseSets = new ArrayList<Set<String>>();
+	for(String id : ids){
+	    String from = loader.getIdSentenceTable().get(id).getFrom();
+	    Set<String> phrases = SentencePair.getPhrases(from, 1);
+	    boolean found = false;
+	    for(int i = 0; i < phraseSets.size(); i++){
+		Set<String> phraseSet = phraseSets.get(i);
+		if(!intersect(phrases, phraseSet)){
+		    batches.get(i).add(id);
+		    phraseSets.get(i).addAll(phrases);
+		    found = true;
+		    break;
+		}
 	    }
-	    existed.add(phrase);
+	    if(!found){
+		List<String> newBatch = new ArrayList<String>();
+		newBatch.add(id);
+		batches.add(newBatch);
+		phraseSets.add(phrases);
+	    }
 	}
+	return batches;
+    }
+    private boolean intersect(Set<String> phrases, Set<String> phraseSet) {
+	// TODO Auto-generated method stub
 	return false;
     }
-
     private void runTranslation(MosesConfig mosesConfig, List<String> froms) throws IOException, InterruptedException {
 	PrintWriter pw = new PrintWriter(new FileWriter(mosesConfig.tempdir + "/temp.txt"));
 	for(String from : froms){
