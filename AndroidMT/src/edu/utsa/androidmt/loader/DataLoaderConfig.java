@@ -12,6 +12,8 @@ public class DataLoaderConfig {
     public static String LAN = "es";
     public static String WORK_NAME = "filter-context-" + LAN;
     public static String HOME_DIR = "/home/sean/projects/ASE_ML";
+    public static int PREFIX_ES = 174729;
+    public static int PREFIX_CH = 201757;
     
     public static DataLoaderConfig defaultTrainConfig(){
 	DataLoaderConfig conf = new DataLoaderConfig();

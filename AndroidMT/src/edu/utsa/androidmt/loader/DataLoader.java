@@ -49,25 +49,30 @@ public class DataLoader {
 	in.close();
     }
     private void loadInputData(String idPath, String oriPath, String transPath) throws IOException{
-	    List<String> ids = fetchLines(idPath);
-	    List<String> froms = fetchLines(oriPath);
-	    List<String> tos = fetchLines(transPath);
-	    if(ids.size()==froms.size() && froms.size() == tos.size()){
-		for(int i = 0; i < froms.size(); i++){
-		    String id = ids.get(i);
-		    String from = froms.get(i);
-		    String to = tos.get(i);
-		    SentencePair sp = new SentencePair(from, to, id);
-		    this.idSentenceTable.put(id, sp);
-		}
+	int prefix = DataLoaderConfig.LAN.equals("es")?DataLoaderConfig.PREFIX_ES : DataLoaderConfig.PREFIX_CH;
+	List<String> ids = fetchLines(idPath, 0);
+	List<String> froms = fetchLines(oriPath, prefix);
+	List<String> tos = fetchLines(transPath, prefix);
+	if(ids.size()==froms.size() && froms.size() == tos.size()){
+	    for(int i = 0; i < froms.size(); i++){
+		String id = ids.get(i);
+		String from = froms.get(i);
+		String to = tos.get(i);
+		SentencePair sp = new SentencePair(from, to, id);
+		this.idSentenceTable.put(id, sp);
 	    }
+	}
     }
 
-    private List<String> fetchLines(String path) throws IOException {
+    private List<String> fetchLines(String path, int start) throws IOException {
 	BufferedReader in = new BufferedReader(new FileReader(path));
 	List<String> lines = new ArrayList<String>();
+	int counter = 0;
 	for(String line = in.readLine(); line!=null; line = in.readLine()){
-	    lines.add(line);
+	    counter = counter + 1;
+	    if(counter > start){
+		lines.add(line);
+	    }
 	}
 	in.close();
 	return lines;

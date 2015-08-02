@@ -83,8 +83,8 @@ public class MTDriver {
 	    }	    
 	    count = count + 1;
 	    System.out.println("translating batch " + count + ", total sentences " + froms.size());
-//	    update.updateProp(froms, contexts);
-//            runTranslation(mconfig, batch, froms);
+	    update.updateProp(froms, contexts);
+            runTranslation(mconfig, batch, froms);
 	}
 	reportBleu(mconfig);
     }
