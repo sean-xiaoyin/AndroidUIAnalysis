@@ -112,7 +112,11 @@ public class MTDriver {
 	return batches;
     }
     private boolean intersect(Set<String> phrases, Set<String> phraseSet) {
-	// TODO Auto-generated method stub
+	for(String phrase : phrases){
+	    if(phraseSet.contains(phrase)){
+		return true;
+	    }
+	}
 	return false;
     }
     private void runTranslation(MosesConfig mosesConfig, List<String> froms) throws IOException, InterruptedException {
