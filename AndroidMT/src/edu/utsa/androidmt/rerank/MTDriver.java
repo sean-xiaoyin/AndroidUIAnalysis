@@ -56,6 +56,7 @@ public class MTDriver {
     public void translate(PropModel model, DataLoaderConfig config, String outputPath) throws IOException, InterruptedException{
 	DataLoader loader = new DataLoader();
 	loader.loadAll(config);
+	MosesConfig mconfig = MosesConfig.defaultConfig();
 	
 	PropUpdater update = new PropUpdater(model, config.getPhraseTablePath(), loader.getPhraseLineTable(), loader.getPhraseLines());
 	
@@ -65,7 +66,8 @@ public class MTDriver {
 	int count = 0;
 
 	List<List<String>> batches = fetchBatches(ids, loader);
-	
+	CommandRunner.runCommand("rm -rf " + mconfig.tempdir + "/final.ids", true);
+	CommandRunner.runCommand("rm -rf " + mconfig.tempdir + "/final.trans", true);
 	for(List<String> batch : batches){
 	    List<String> froms = new ArrayList<String>();
 	    Hashtable<String, List<String>> contexts = new Hashtable<String, List<String>>();
@@ -81,17 +83,30 @@ public class MTDriver {
 	    }	    
 	    count = count + 1;
 	    System.out.println("translating batch " + count + ", total sentences " + froms.size());
-//	    update.updateProp(froms, contexts);
-//            runTranslation(MosesConfig.defaultConfig(), froms);
+	    update.updateProp(froms, contexts);
+            runTranslation(mconfig, batch, froms);
 	}
+	reportBleu(mconfig);
     }
 
+    private void reportBleu(MosesConfig mconfig) throws IOException, InterruptedException {
+	String lan = DataLoaderConfig.LAN;
+	CommandResult cr = CommandRunner.runCommand(mconfig.mosesdir + "/mosesdecoder/scripts/generic/multi-bleu.perl -lc " 
+	+ mconfig.refdir + "/test.true." + lan + " < " + mconfig.tempdir + "/final.trans", true);
+	System.out.println(cr.toString());
+    }
     private List<List<String>> fetchBatches(List<String> ids, DataLoader loader) {
 	List<List<String>> batches = new ArrayList<List<String>>();
 	List<Set<String>> phraseSets = new ArrayList<Set<String>>();
+	List<String> noContextBatch = new ArrayList<String>();
 	for(String id : ids){
 	    String from = loader.getIdSentenceTable().get(id).getFrom();
 	    Set<String> phrases = SentencePair.getPhrases(from, 1);
+	    List<String> context = loader.getIdContextTable().get(id);
+	    if(context == null || context.size()==0){
+		noContextBatch.add(id);
+		continue;
+	    }
 	    boolean found = false;
 	    for(int i = 0; i < phraseSets.size(); i++){
 		Set<String> phraseSet = phraseSets.get(i);
@@ -109,6 +124,7 @@ public class MTDriver {
 		phraseSets.add(phrases);
 	    }
 	}
+	batches.add(noContextBatch);
 	return batches;
     }
     private boolean intersect(Set<String> phrases, Set<String> phraseSet) {
@@ -127,12 +143,16 @@ public class MTDriver {
 	}
 	return false;
     }
-    private void runTranslation(MosesConfig mosesConfig, List<String> froms) throws IOException, InterruptedException {
+    private void runTranslation(MosesConfig mosesConfig, List<String> ids, List<String> froms) throws IOException, InterruptedException {
 	PrintWriter pw = new PrintWriter(new FileWriter(mosesConfig.tempdir + "/temp.txt"));
-	for(String from : froms){
-	    pw.println(from);
+	PrintWriter pwID = new PrintWriter(new FileWriter(mosesConfig.tempdir + "/temp.ids"));
+	for(int i = 0 ; i < ids.size(); i++){
+	    pw.println(froms.get(i));
+	    pwID.println(ids.get(i));
 	}
 	pw.close();
+	pwID.close();
+	
 	System.out.println("tokenizing... ");
 
 	CommandResult cr = CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < " 
@@ -147,6 +167,8 @@ public class MTDriver {
 		+ mosesConfig.workdir + "/moses.ini < " + mosesConfig.tempdir + "/temp.true > " + mosesConfig.tempdir
 		+ "/temp.trans 2> " + mosesConfig.tempdir + "/test.out", true);
 	CommandRunner.runCommand("cat " + mosesConfig.tempdir + "/temp.trans >> " + mosesConfig.tempdir + "/final.trans", true);
+	CommandRunner.runCommand("cat " + mosesConfig.tempdir + "/temp.ids >> " + mosesConfig.tempdir + "/final.ids", true);
+
     }
     
 }
