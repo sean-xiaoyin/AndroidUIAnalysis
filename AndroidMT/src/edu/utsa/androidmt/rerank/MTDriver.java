@@ -81,8 +81,8 @@ public class MTDriver {
 	    }	    
 	    count = count + 1;
 	    System.out.println("translating batch " + count + ", total sentences " + froms.size());
-	    update.updateProp(froms, contexts);
-            runTranslation(MosesConfig.defaultConfig(), froms);
+//	    update.updateProp(froms, contexts);
+//            runTranslation(MosesConfig.defaultConfig(), froms);
 	}
     }
 
@@ -113,7 +113,15 @@ public class MTDriver {
     }
     private boolean intersect(Set<String> phrases, Set<String> phraseSet) {
 	for(String phrase : phrases){
-	    if(phraseSet.contains(phrase)){
+	    if(hasLetter(phrase) && phraseSet.contains(phrase)){
+		return true;
+	    }
+	}
+	return false;
+    }
+    private boolean hasLetter(String phrase) {
+	for(int i = 0; i < phrase.length(); i++){
+	    if(Character.isLetter(phrase.charAt(i))){
 		return true;
 	    }
 	}
