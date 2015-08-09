@@ -19,9 +19,9 @@ public class DataLoader {
     private Hashtable<PhrasePair, Integer> phraseLineTable = new Hashtable<PhrasePair, Integer>();
     private List<String> phraseLines = new ArrayList<String>();
     
-    public void loadAll(DataLoaderConfig conf) throws IOException{
+    public void loadAll(DataLoaderConfig conf, boolean training) throws IOException{
 	this.loadPhraseTable(conf.getPhraseTablePath());
-	this.loadInputData(conf.getIDPath(), conf.getOriPath(), conf.getTransPath());
+	this.loadInputData(conf.getIDPath(), conf.getOriPath(), conf.getTransPath(), training);
 	this.loadContexts(conf.getContextsPath());
     }
 
@@ -35,10 +35,10 @@ public class DataLoader {
 	    String to = parts[1].trim();
 	    String scores = parts[2].trim();
 
-	    double prop = Double.parseDouble(scores.split(" ")[0].trim());
+	    double prop = Double.parseDouble(scores.split(" ")[2].trim());
 	    PhrasePair pp = new PhrasePair(from, to, prop);
 	    this.phraseLineTable.put(pp, lineNum);
-	    List<PhrasePair> pairs = phraseTable.get(pp);
+	    List<PhrasePair> pairs = phraseTable.get(from);
 	    if(pairs == null){
 		pairs = new ArrayList<PhrasePair>();
 		phraseTable.put(from, pairs);
@@ -48,8 +48,11 @@ public class DataLoader {
 	}
 	in.close();
     }
-    private void loadInputData(String idPath, String oriPath, String transPath) throws IOException{
-	int prefix = DataLoaderConfig.LAN.equals("es")?DataLoaderConfig.PREFIX_ES : DataLoaderConfig.PREFIX_CH;
+    private void loadInputData(String idPath, String oriPath, String transPath, boolean training) throws IOException{
+	int prefix = 0;
+	if(training){
+	    prefix  = DataLoaderConfig.LAN.equals("es")?DataLoaderConfig.PREFIX_ES : DataLoaderConfig.PREFIX_CH;
+	}
 	List<String> ids = fetchLines(idPath, 0);
 	List<String> froms = fetchLines(oriPath, prefix);
 	List<String> tos = fetchLines(transPath, prefix);
@@ -64,7 +67,7 @@ public class DataLoader {
 	}
     }
 
-    private List<String> fetchLines(String path, int start) throws IOException {
+    public static List<String> fetchLines(String path, int start) throws IOException {
 	BufferedReader in = new BufferedReader(new FileReader(path));
 	List<String> lines = new ArrayList<String>();
 	int counter = 0;
@@ -84,17 +87,20 @@ public class DataLoader {
 	    BufferedReader in = new BufferedReader(new FileReader(path + "/" + txt));
 	    for(String line = in.readLine(); line!=null; line = in.readLine()){
 		String[] items = line.split("~");
-		String id = items[0].trim() + ":" + txt;
+		String id = txt + ":" + items[0].trim();
 		List<String> contextWords = new ArrayList<String>();
 		this.idContextTable.put(id, contextWords);
 		
 		for(int i = 2; i< items.length; i++){
 		    String context = items[i].trim();
-		    if(!context.contains("smali") && context.length() > 0){
-			String[] words = context.split(" ,");
-			for(String word : words){
-			    if(word.trim().length() > 0){
-				contextWords.add(word.trim());
+		    if(!context.contains("smali") && !context.contains("Not Found") && context.length() > 0){
+			String[] conSents = context.split(" ,");
+			for(String sen : conSents){
+			    String[] words = sen.split(" ");
+			    for(String word:words){
+				if(word.trim().length() > 0 && !StopWords.isStopword(word)){
+				    contextWords.add(Stemmer.stemWord(word.trim()));
+				}
 			    }
 			}
 		    }

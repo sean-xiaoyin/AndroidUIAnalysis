@@ -13,8 +13,8 @@ public class PropModel implements Serializable{
      * 
      */
     private static final long serialVersionUID = 1L;
-    private Hashtable<String, List<PhrasePair>> targetTable;
-    private Hashtable<String, Integer> contextWordPropTable;
+    private Hashtable<String, List<PhrasePair>> targetTable; // 
+    private Hashtable<String, Integer> contextWordPropTable; // a table whose key is a word in the context, and the value is the number of times the word appears
     private int sentenceSum;
 
     private PropModel(Hashtable<String, List<PhrasePair>> targetTable, Hashtable<String, Integer> contextWordPropTable, int sentenceSum){

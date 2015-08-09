@@ -23,29 +23,45 @@ public class PropUpdater {
 	this.phraseLineTable = phraseLineTable;
 	this.phraseLines = phraseLines;
     }
-    public void updateProp(List<String> sentences, Hashtable<String, List<String>> contexts) throws IOException{
+    public String updateProp(List<String> sentences, Hashtable<String, List<String>> contexts) throws IOException, InterruptedException{
 	for(String sentence : sentences){
 	    Set<String> phrases = SentencePair.getPhrases(sentence, 4);
 	    for(String phrase : phrases){
 		List<PhrasePair> pairs = this.model.getPairs(phrase);
 		if(pairs!=null){
 		    for (PhrasePair pp : pairs){
-			updatePhraseFile(this.phraseLineTable.get(pp), this.model.getContextsProp(pp, contexts.get(sentence)));
+			if(this.phraseLineTable.get(pp)!=null){
+			    updatePhraseFile(this.phraseLineTable.get(pp), this.model.getContextsProp(pp, contexts.get(sentence)));
+			}
 		    }
 		}
 	    }
 	}
-	PrintWriter pw = new PrintWriter(new FileWriter(this.phraseTablePath));
+	String newPhraseTablePath = this.phraseTablePath.substring(0, this.phraseTablePath.lastIndexOf('/')) + "/phrase-table.0-0.1.1";
+	PrintWriter pw = new PrintWriter(new FileWriter(newPhraseTablePath));
 	for(String line : this.phraseLines){
 	    pw.println(line);
 	}
 	pw.close();
+	CommandRunner.runCommand("rm -rf " + newPhraseTablePath + ".gz", true);
+	CommandRunner.runCommand("gzip " + newPhraseTablePath, true);
+	return newPhraseTablePath;
     }
     private void updatePhraseFile(int lineNum, double contextsProp) {
 	String line = this.phraseLines.get(lineNum);
 	int index1 = line.indexOf("|||", line.indexOf("|||") + 3) + 3;
-	int index2 = line.indexOf(" ", index1);
-	String updated = line.substring(0, index1) + contextsProp + line.substring(index2);
+	int index2 = line.indexOf("|||", index1);
+	String scorePart = line.substring(index1, index2);
+	String[] scores = scorePart.trim().split(" ");
+	scores[2] = contextsProp + "";
+	String newScorePart = " " + scores[0] + " " + scores[1] + " " + scores[2] + " " + scores[3] + " "; 
+	String updated = line.substring(0, index1) + newScorePart + line.substring(index2);
 	this.phraseLines.set(lineNum, updated);
+    }
+    public String getPhraseTablePath() {
+	return phraseTablePath;
+    }
+    public void setPhraseTablePath(String phraseTablePath) {
+	this.phraseTablePath = phraseTablePath;
     }
 }
