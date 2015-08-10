@@ -28,14 +28,15 @@ public class MTDriver {
 	DataLoaderConfig trainConfig = DataLoaderConfig.defaultTrainConfig();
 	System.out.println("loading the model...");
 	File modelFile = new File(trainConfig.getContextModelPath());
-	PropModel model = modelFile.exists() ? loadModel(trainConfig.getContextModelPath()) : generateModel(trainConfig);
+	PropModel model = modelFile.exists() && trainConfig.lazy() ? loadModel(trainConfig.getContextModelPath()) : generateModel(trainConfig);
+	
 	System.out.println("performing translation...");
 	translate(model, DataLoaderConfig.defaultTestConfig(), "");
     }
     
     public PropModel generateModel(DataLoaderConfig config) throws IOException{
 	DataLoader loader = new DataLoader();
-	loader.loadAll(config);
+	loader.loadAll(config, true);
 	PropModel model = PropModel.extractModel(loader);
 	writeModel(model, config.getContextModelPath());
 	return model;
@@ -55,7 +56,7 @@ public class MTDriver {
 
     public void translate(PropModel model, DataLoaderConfig config, String outputPath) throws IOException, InterruptedException{
 	DataLoader loader = new DataLoader();
-	loader.loadAll(config);
+	loader.loadAll(config, false);
 	MosesConfig mconfig = MosesConfig.defaultConfig();
 	
 	PropUpdater update = new PropUpdater(model, config.getPhraseTablePath(), loader.getPhraseLineTable(), loader.getPhraseLines());
@@ -83,16 +84,33 @@ public class MTDriver {
 	    }	    
 	    count = count + 1;
 	    System.out.println("translating batch " + count + ", total sentences " + froms.size());
+	    String newPhraseTablePath = update.getPhraseTablePath().substring(0, update.getPhraseTablePath().lastIndexOf('/')) + "/phrase-table.0-0.1.1";
 	    update.updateProp(froms, contexts);
             runTranslation(mconfig, batch, froms);
+            CommandRunner.runCommand("rm -rf " + newPhraseTablePath, true);
 	}
 	reportBleu(mconfig);
     }
 
     private void reportBleu(MosesConfig mconfig) throws IOException, InterruptedException {
+	List<String> outs = DataLoader.fetchLines(mconfig.tempdir + "/final.trans", 0);
+	List<String> ids = DataLoader.fetchLines(mconfig.tempdir + "/final.ids", 0);
+	List<String> oriIDs = DataLoader.fetchLines(mconfig.refdir + "/test.ids", 0);
+	PrintWriter pw = new PrintWriter(new FileWriter(mconfig.tempdir + "/re-order.trans"));
+	
+	Hashtable<String, String> idOutTable = new Hashtable<String, String>();
+	for(int i = 0; i < outs.size(); i++){
+	    idOutTable.put(ids.get(i), outs.get(i));
+	}
+	for(String ori : oriIDs){
+	    pw.println(idOutTable.get(ori));
+	}
+	pw.close();
+	
+	
 	String lan = DataLoaderConfig.LAN;
 	CommandResult cr = CommandRunner.runCommand(mconfig.mosesdir + "/mosesdecoder/scripts/generic/multi-bleu.perl -lc " 
-	+ mconfig.refdir + "/test.true." + lan + " < " + mconfig.tempdir + "/final.trans", true);
+	+ mconfig.refdir + "/test.true." + lan + " < " + mconfig.tempdir + "/re-order.trans", true);
 	System.out.println(cr.toString());
     }
     private List<List<String>> fetchBatches(List<String> ids, DataLoader loader) {
@@ -144,7 +162,7 @@ public class MTDriver {
 	return false;
     }
     private void runTranslation(MosesConfig mosesConfig, List<String> ids, List<String> froms) throws IOException, InterruptedException {
-	PrintWriter pw = new PrintWriter(new FileWriter(mosesConfig.tempdir + "/temp.txt"));
+	PrintWriter pw = new PrintWriter(new FileWriter(mosesConfig.tempdir + "/temp.true"));
 	PrintWriter pwID = new PrintWriter(new FileWriter(mosesConfig.tempdir + "/temp.ids"));
 	for(int i = 0 ; i < ids.size(); i++){
 	    pw.println(froms.get(i));
@@ -155,12 +173,12 @@ public class MTDriver {
 	
 	System.out.println("tokenizing... ");
 
-	CommandResult cr = CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < " 
-		+ mosesConfig.tempdir + "/temp.txt > " + mosesConfig.tempdir + "/temp.tok", true);
-	System.out.println(cr.getStdOut());
-	CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/recaser/truecase.perl --model " 
-		+ mosesConfig.mosesdir + "/corpus/truecase-model.en < " + mosesConfig.tempdir + "/temp.tok > " 
-		+ mosesConfig.tempdir + "/temp.true", true);
+//	CommandResult cr = CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/tokenizer/tokenizer.perl -l en < " 
+//		+ mosesConfig.tempdir + "/temp.txt > " + mosesConfig.tempdir + "/temp.tok", true);
+//	System.out.println(cr.getStdOut());
+//	CommandRunner.runCommand(mosesConfig.mosesdir + "/mosesdecoder/scripts/recaser/truecase.perl --model " 
+//		+ mosesConfig.mosesdir + "/corpus/truecase-model.en < " + mosesConfig.tempdir + "/temp.tok > " 
+//		+ mosesConfig.tempdir + "/temp.true", true);
 	System.out.println("translating... ");
 	
 	CommandRunner.runCommand("nohup nice " + mosesConfig.mosesdir + "/mosesdecoder/bin/moses -f " 
