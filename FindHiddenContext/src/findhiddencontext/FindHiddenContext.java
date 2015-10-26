@@ -376,24 +376,30 @@ public class FindHiddenContext {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException, Exception {
-        // TODO code application logic here
         
-        String apkPath = "C:/Xue/ml/SingleApks/1000_com.slacker.radio";
-        String outName = "C:/Xue/ml/output2.txt";
-        File filew = new File(outName);
-        FileWriter fileWriter = new FileWriter(filew,true);
+        //iterate over all apks
+        String apkFolder = "/home/xue/Documents/Apps/NewApks";
+        File f = new File(apkFolder);
+        for(String name : f.list()) {
+            System.out.println(name);
+            String apkPath = apkFolder + "/" + name;
+            String outName = "/home/xue/Documents/Apps/NewApks_output/" + name + ".txt";
+            File out = new File(outName);
+            if(!out.exists()) {
+                out.createNewFile();
+            }
+            
+            FileWriter fileWriter = new FileWriter(out,true);
         
-        FindHiddenContext fhc = handleContext(apkPath);
+            FindHiddenContext fhc = handleContext(apkPath);
         
-        for ( int i = 0; i < fhc.sList.size(); i++) {
-            WriteText(fhc.sList.get(i), fileWriter);
+            for ( int i = 0; i < fhc.sList.size(); i++) {
+                WriteText(fhc.sList.get(i), fileWriter);
+            }
+        
+            fileWriter.flush();
+            fileWriter.close();     
         }
-        
-        fileWriter.flush();
-	fileWriter.close();
-         
-                
-        
     }
     
 }

@@ -1,5 +1,10 @@
 package edu.utsa.cs.sootutil.visitors;
 
+//import edu.utsa.cs.sootutil.FlowCheckLoader;
+import edu.utsa.cs.sootutil.FlowCheckStmt;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Set;
 import soot.Local;
 import soot.SootClass;
 import soot.SootMethod;
@@ -70,24 +75,55 @@ import soot.jimple.XorExpr;
 import soot.util.Chain;
 
 public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
+
 	private SootClass curClass;
 	private SootMethod curMethod;
+        Set<FlowCheck> fcSet;
 		
-	public static void visitAll(Chain<SootClass> classes, SootVisitor sv){
-		for(SootClass sc : classes){
-			if(sc.getName().indexOf("PlaybackEqualizer")!=-1){
-				System.out.println();
-			}
-			sv.setCurrentClass(sc);
-			for (SootMethod sm : sc.getMethods()){
-				sv.setCurrentMethod(sm);
-				if(sm.hasActiveBody()){
-					for(Unit u : sm.getActiveBody().getUnits()){
-						u.apply(sv);
-					}
-				}
-			}
+	public static void visitAll(Chain<SootClass> classes, SootVisitor sv) throws Exception{
+            
+            for(SootClass sc : classes){
+		if(sc.getName().indexOf("PlaybackEqualizer")!=-1){
+			System.out.println();
 		}
+		UIFlowVisitor uv = new UIFlowVisitor();
+                uv.setCurrentClass(sc);
+                //sv.setCurrentClass(sc);
+		
+                /*
+                for (SootMethod sm : sc.getMethods()){
+                    
+                    sv.fcCaseMatch_test(sm);
+                    sv.setCurrentMethod(sm);
+                    if(sm.hasActiveBody()){
+			for(Unit u : sm.getActiveBody().getUnits()){
+                            u.apply(sv);
+			}
+                    }
+		}
+                */
+                for (SootMethod sm : sc.getMethods()){
+                    uv.setCurrentMethod(sm);
+                    uv.fcCaseMatch_test(sm);
+                    if(sm.hasActiveBody()){
+			for(Unit u : sm.getActiveBody().getUnits()){
+                            u.apply(uv);
+			}
+                    }
+                }
+                
+                File filew = new File("/home/xue/out.txt");
+                FileWriter fileWriter = new FileWriter(filew,true);
+        
+                fileWriter.write("\n========== flowgraph ==========\n");
+                fileWriter.write(uv.flowGraph.toString());
+                
+        
+                fileWriter.flush();
+                fileWriter.close();
+                
+                
+            }
 	}
 	
 	public SootClass getCurrentClass(){
@@ -103,6 +139,13 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		this.curMethod = sm;
 	}
 	
+        public boolean fcAddFlow(FlowCheck fc, SootMethod sm){
+            return true;
+        }
+        public boolean fcCaseMatch_test(SootMethod sm){
+            return true;
+        }
+        
 	@Override
 	public void caseAssignStmt(AssignStmt arg0) {
 		if(beforeAssignStmt(arg0)){
