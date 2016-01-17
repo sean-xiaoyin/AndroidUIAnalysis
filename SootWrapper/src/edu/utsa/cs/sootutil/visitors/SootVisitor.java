@@ -2,7 +2,10 @@ package edu.utsa.cs.sootutil.visitors;
 
 //import edu.utsa.cs.sootutil.FlowCheckLoader;
 import edu.utsa.cs.sootutil.FlowCheckStmt;
+<<<<<<< HEAD
 import edu.utsa.cs.sootutil.FlowDraw;
+=======
+>>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Set;
@@ -80,18 +83,28 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 
 	private SootClass curClass;
 	private SootMethod curMethod;
+<<<<<<< HEAD
         static Set<FlowCheck> fcSet;
 	
 	public static void visitAll(Chain<SootClass> classes, SootVisitor sv, String API_path) throws Exception{
             
             fcSet = FlowCheckStmt.fcLoader(API_path);
+=======
+        Set<FlowCheck> fcSet;
+		
+	public static void visitAll(Chain<SootClass> classes, SootVisitor sv) throws Exception{
+            
+>>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
             for(SootClass sc : classes){
 		if(sc.getName().indexOf("PlaybackEqualizer")!=-1){
 			System.out.println();
 		}
 		UIFlowVisitor uv = new UIFlowVisitor();
                 uv.setCurrentClass(sc);
+<<<<<<< HEAD
                 
+=======
+>>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
                 //sv.setCurrentClass(sc);
 		
                 /*
@@ -109,6 +122,7 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
                 for (SootMethod sm : sc.getMethods()){
                     uv.setCurrentMethod(sm);
                     uv.fcCaseMatch_test(sm);
+<<<<<<< HEAD
                     //System.out.println(sm.getActiveBody()+ "\n");
                     //System.out.println(sm.getSignature() + "\n");
                     //System.out.println(sm.getName() + "\n");
@@ -122,10 +136,16 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
                             }
                                   
                             //u.apply(uv);
+=======
+                    if(sm.hasActiveBody()){
+			for(Unit u : sm.getActiveBody().getUnits()){
+                            u.apply(uv);
+>>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
 			}
                     }
                 }
                 
+<<<<<<< HEAD
                 
                 
                 File filew = new File("/home/xue/Documents/FlowGraph/out.txt");
@@ -142,16 +162,26 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
                 fileWriter.write(uv.sourceGraph.toString());
                 fileWriter.write("\n-----------paraTable-----------\n");
                 fileWriter.write(uv.paraTable.toString());
+=======
+                File filew = new File("/home/xue/out.txt");
+                FileWriter fileWriter = new FileWriter(filew,true);
+        
+                fileWriter.write("\n========== flowgraph ==========\n");
+                fileWriter.write(uv.flowGraph.toString());
+>>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
                 
         
                 fileWriter.flush();
                 fileWriter.close();
                 
+<<<<<<< HEAD
                 File f = new File("/home/xue/Documents/FlowGraph/drawGraph/" + sc.getName().toString() + ".dot");
                 FileWriter fw = new FileWriter(f,true);
                 FlowDraw.DrawWholeGraph(fw, uv);
                 fw.flush();
                 fw.close();
+=======
+>>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
                 
             }
 	}
