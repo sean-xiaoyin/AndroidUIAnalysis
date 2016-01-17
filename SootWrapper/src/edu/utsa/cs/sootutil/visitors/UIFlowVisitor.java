@@ -327,6 +327,7 @@ public class UIFlowVisitor extends SootVisitor{
                 for(int i = 0; i< paras.size(); i++){
                     System.out.println("para:" + paras.get(i));
                     addEdge(this.flowGraph, arg0.getArg(i), paras.get(i));
+                   
                 }
                 
             } 
