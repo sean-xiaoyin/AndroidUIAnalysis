@@ -1,5 +1,11 @@
 package edu.utsa.cs.sootutil.visitors;
 
+//import edu.utsa.cs.sootutil.FlowCheckLoader;
+import edu.utsa.cs.sootutil.FlowCheckStmt;
+import edu.utsa.cs.sootutil.FlowDraw;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Set;
 import soot.Local;
 import soot.SootClass;
 import soot.SootMethod;
@@ -58,6 +64,7 @@ import soot.jimple.ShrExpr;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticFieldRef;
 import soot.jimple.StaticInvokeExpr;
+import soot.jimple.Stmt;
 import soot.jimple.StmtSwitch;
 import soot.jimple.StringConstant;
 import soot.jimple.SubExpr;
@@ -70,24 +77,83 @@ import soot.jimple.XorExpr;
 import soot.util.Chain;
 
 public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
+
 	private SootClass curClass;
 	private SootMethod curMethod;
-		
-	public static void visitAll(Chain<SootClass> classes, SootVisitor sv){
-		for(SootClass sc : classes){
-			if(sc.getName().indexOf("PlaybackEqualizer")!=-1){
-				System.out.println();
-			}
-			sv.setCurrentClass(sc);
-			for (SootMethod sm : sc.getMethods()){
-				sv.setCurrentMethod(sm);
-				if(sm.hasActiveBody()){
-					for(Unit u : sm.getActiveBody().getUnits()){
-						u.apply(sv);
-					}
-				}
-			}
+        static Set<FlowCheck> fcSet;
+	
+	public static void visitAll(Chain<SootClass> classes, SootVisitor sv, String API_path) throws Exception{
+            
+            fcSet = FlowCheckStmt.fcLoader(API_path);
+            for(SootClass sc : classes){
+		if(sc.getName().indexOf("PlaybackEqualizer")!=-1){
+			System.out.println();
 		}
+		UIFlowVisitor uv = new UIFlowVisitor();
+                uv.setCurrentClass(sc);
+                
+                //sv.setCurrentClass(sc);
+		
+                /*
+                for (SootMethod sm : sc.getMethods()){
+                    
+                    sv.fcCaseMatch_test(sm);
+                    sv.setCurrentMethod(sm);
+                    if(sm.hasActiveBody()){
+			for(Unit u : sm.getActiveBody().getUnits()){
+                            u.apply(sv);
+			}
+                    }
+		}
+                */
+                for (SootMethod sm : sc.getMethods()){
+                    uv.setCurrentMethod(sm);
+                    uv.fcCaseMatch_test(sm);
+                    //System.out.println(sm.getActiveBody()+ "\n");
+                    //System.out.println(sm.getSignature() + "\n");
+                    //System.out.println(sm.getName() + "\n");
+                    if(sm.hasActiveBody()){
+                        System.out.println(sm.getActiveBody());
+			for(Unit u : sm.getActiveBody().getUnits()){
+                            
+                            Stmt s =(Stmt)u;
+                            if(s instanceof InvokeStmt){
+                                u.apply(uv);
+                            }
+                                  
+                            //u.apply(uv);
+			}
+                    }
+                }
+                
+                
+                
+                File filew = new File("/home/xue/Documents/FlowGraph/out.txt");
+                FileWriter fileWriter = new FileWriter(filew,true);
+        
+                fileWriter.write("\n========== flowgraph ==========\n");
+                fileWriter.write(sc.getName().toString() + "\n");
+                fileWriter.write(uv.flowGraph.toString());
+                fileWriter.write("\n-----------list-----------\n");
+                fileWriter.write(uv.list.toString());
+                fileWriter.write("\n-----------sinkGraph----------\n");
+                fileWriter.write(uv.sinkGraph.toString());
+                fileWriter.write("\n-----------sourceGraph---------\n");
+                fileWriter.write(uv.sourceGraph.toString());
+                fileWriter.write("\n-----------paraTable-----------\n");
+                fileWriter.write(uv.paraTable.toString());
+                
+        
+                fileWriter.flush();
+                fileWriter.close();
+                
+                File f = new File("/home/xue/Documents/FlowGraph/drawGraph/" + sc.getName().toString() + ".dot");
+                FileWriter fw = new FileWriter(f,true);
+                FlowDraw.DrawWholeGraph(fw, uv);
+                fw.flush();
+                fw.close();
+                
+            }
 	}
 	
 	public SootClass getCurrentClass(){
@@ -103,6 +169,13 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		this.curMethod = sm;
 	}
 	
+        public boolean fcAddFlow(FlowCheck fc, SootMethod sm){
+            return true;
+        }
+        public boolean fcCaseMatch_test(SootMethod sm){
+            return true;
+        }
+        
 	@Override
 	public void caseAssignStmt(AssignStmt arg0) {
 		if(beforeAssignStmt(arg0)){
@@ -133,7 +206,16 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 	}
 
 	@Override
-	public void caseIdentityStmt(IdentityStmt arg0) {
+	public void caseIdentityStmt(IdentityStmt arg0) {       
+        	if(beforeIdentityStmt(arg0)){
+			arg0.getRightOp().apply(this);
+		}
+		afterIdentityStmt(arg0);
+	}
+	public boolean beforeIdentityStmt(IdentityStmt arg0) {
+		return true;
+	}
+	public void afterIdentityStmt(IdentityStmt arg0) {
 	}
 
 	@Override
@@ -585,10 +667,10 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		}
 		afterSpecialInvokeExpr(arg0);
 	}
-	private boolean beforeSpecialInvokeExpr(SpecialInvokeExpr arg0) {
+	protected boolean beforeSpecialInvokeExpr(SpecialInvokeExpr arg0) {
 		return true;
 	}
-	private void afterSpecialInvokeExpr(SpecialInvokeExpr arg0) {
+	protected void afterSpecialInvokeExpr(SpecialInvokeExpr arg0) {
 	}
 
 	@Override
@@ -601,10 +683,10 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		}
 		afterStaticInvokeExpr(arg0);
 	}
-	private boolean beforeStaticInvokeExpr(StaticInvokeExpr arg0) {
+	protected boolean beforeStaticInvokeExpr(StaticInvokeExpr arg0) {
 		return true;
 	}
-	private void afterStaticInvokeExpr(StaticInvokeExpr arg0) {
+	protected void afterStaticInvokeExpr(StaticInvokeExpr arg0) {
 	}	
 
 	@Override
@@ -646,11 +728,12 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 		}
 		afterVirtualInvokeExpr(arg0);
 	}
-	private boolean beforeVirtualInvokeExpr(VirtualInvokeExpr arg0) {
+	protected boolean beforeVirtualInvokeExpr(VirtualInvokeExpr arg0) {
 		return true;
 	}
-	private void afterVirtualInvokeExpr(VirtualInvokeExpr arg0) {
-	}	
+	protected void afterVirtualInvokeExpr(VirtualInvokeExpr arg0) {
+	}
+        
 
 	@Override
 	public void caseXorExpr(XorExpr arg0) {
