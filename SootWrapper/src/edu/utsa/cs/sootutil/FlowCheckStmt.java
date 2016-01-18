@@ -45,6 +45,7 @@ public class FlowCheckStmt {
             }
             if ( n % 5 == 0){
                 fcSet.add(fc);
+                fc = new FlowCheck();
             }
             
         }

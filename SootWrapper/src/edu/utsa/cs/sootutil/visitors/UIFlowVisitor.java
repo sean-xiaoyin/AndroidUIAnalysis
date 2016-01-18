@@ -17,35 +17,24 @@ import soot.jimple.AssignStmt;
 import soot.jimple.IdentityStmt;
 import soot.jimple.InstanceFieldRef;
 import soot.jimple.InterfaceInvokeExpr;
-<<<<<<< HEAD
 import soot.jimple.InvokeExpr;
 import soot.jimple.InvokeStmt;
 import soot.jimple.ParameterRef;
-=======
->>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
 import soot.jimple.ReturnStmt;
 import soot.jimple.SpecialInvokeExpr;
 import soot.jimple.StaticInvokeExpr;
 import soot.jimple.VirtualInvokeExpr;
 
 public class UIFlowVisitor extends SootVisitor{
-<<<<<<< HEAD
     public Hashtable<Object, Set<Object>> flowGraph;
-    public Hashtable<SootMethod, List<Parameter>> paraTable;
+    public Hashtable<SootMethod, List<ParameterRef>> paraTable;
     public Set<Object> sourceGraph;
     public Set<Object> sinkGraph;
     public List <String> list;
-=======
-    Hashtable<Object, Set<Object>> flowGraph;
-    Hashtable<SootMethod, List<Parameter>> paraTable;
-    Set<Object> sourceGraph;
-    Set<Object> sinkGraph;
-    List <String> list;
->>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
     
     public UIFlowVisitor() throws FileNotFoundException{
 	this.flowGraph = new Hashtable<Object, Set<Object>>();
-	this.paraTable = new Hashtable<SootMethod, List<Parameter>>();
+	this.paraTable = new Hashtable<SootMethod, List<ParameterRef>>();
         this.sourceGraph = new HashSet<Object>();
         this.sinkGraph = new HashSet<Object>();
         this.list = classList();
@@ -63,13 +52,9 @@ public class UIFlowVisitor extends SootVisitor{
         return clist;
     }
  
-<<<<<<< HEAD
     @Override
     public boolean beforeAssignStmt(AssignStmt arg0){  
         
-=======
-    public boolean beforeAssignStmt(AssignStmt arg0){
->>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
         Object left = arg0.getLeftOp();
 	left = checkField(left);
 		
@@ -83,21 +68,15 @@ public class UIFlowVisitor extends SootVisitor{
 	return true;	
     }
     
-<<<<<<< HEAD
     @Override
     public boolean beforeReturnStmt(ReturnStmt arg0) {	
         Object value = getCurrentMethod();
-=======
-    public boolean beforeReturnStmt(ReturnStmt arg0) {	
-    	Object value = getCurrentMethod();
->>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
     	Object key = arg0.getOp();
     	addEdge(this.flowGraph, key, value);
     	
     	return true;
     }
     
-<<<<<<< HEAD
     @Override
     public boolean beforeVirtualInvokeExpr(VirtualInvokeExpr arg0) {
 	handleInvoke(arg0);
@@ -123,266 +102,41 @@ public class UIFlowVisitor extends SootVisitor{
     
     public boolean beforeIdentityStmt(IdentityStmt arg0) {
 	Value v = arg0.getRightOp();
+        List <String> slist = paraTypeList();
         
         if (v instanceof ParameterRef) {
+            ParameterRef parameterRef = (ParameterRef) v;
+            SootMethod sm = arg0.getInvokeExpr().getMethod();
             
-        }
-        
-        return true;
-    }
-=======
-    public boolean beforeVirtualInvokeStmt (VirtualInvokeExpr arg0){
-        Object base = arg0.getBase();
-	SootMethod sm = arg0.getMethod();
-	SootClass sc = sm.getDeclaringClass();
-        List <String> slist = paraTypeList();
- 
-	
-        if (sm.getName().contains("Activity")){
-            sinkGraph.add(sm);
-        }
-        /*
-        if (){
-            sinkGraph.add(sm);
-        }
-                */
-        String sn = sc.getShortName();
-        if (list.contains(sn)) {
+            addEdge(this.flowGraph, arg0.getLeftOp(), sm.getDeclaringClass().getJavaStyleName());
             
-            addEdge(this.flowGraph, base, sc);
-            List<Parameter> paras = paraTable.get(sm);
-            if(paras == null){
-                paras = new ArrayList<Parameter>();
+            // addEdge first
+            //addEdge(this.flowGraph, arg0.getBase(), sc);
+            
+            // get the parameters(values) already exist in this sm
+            List<ParameterRef> paras = paraTable.get(sm);
+            
+            // if no parameters, create a new list then add.
+            if (paras == null) {
+                paras = new ArrayList<ParameterRef>();
                 for(int i = 0; i< sm.getParameterTypes().size(); i++){
                     if (slist.contains(sm.getParameterType(i).toString())) {
                         Parameter p = new Parameter(sm, i);
-                        paras.add(p);
-                    }    
+                        paras.add(parameterRef);
+                    }      
                 }
                 paraTable.put(sm, paras);
             }
+            // if already have parameters, directly addedge
             paras = paraTable.get(sm);
             for(int i = 0; i< paras.size(); i++){
-                addEdge(this.flowGraph, arg0.getArg(i), paras.get(i));
-            }
-            
-        }
-	return true;
-    }
-
-    public boolean beforeVirtualInvokeExpr(VirtualInvokeExpr arg0) {
-	
-        SootMethod sm = arg0.getMethod();
-        if (sm.getName().contains("Activity")){
-            sinkGraph.add(sm);
-        }
-        FlowCheck fc = FlowCheckStmt.fcMatch(sm,fcSet);
-        Value key = null;
-        Value value = null;
-        if ( fc != null) { // found
-            // check operations
-            String operations = fc.operations;
-            int i = 0;
-            
-            while(i < operations.length()){
-            String ops = operations.substring(i, i+2);
-            for (int j = 0; j < ops.length(); j++){
-                if ( j == 0){ //key
-                    int k = Integer.parseInt(ops.substring(0, 1));
-                    switch (k) {
-                        case -1:
-                            //key = arg0.
-                            break;
-                        case 0:
-                            key = arg0.getBase();
-                            break;
-                        default:
-                            key = arg0.getArg(k);
-                            break;
-                    }
-                }
-                else if (j == 1){ //value
-                    int k = Integer.parseInt(ops.substring(1, 2));
-                    switch (k) {
-                        case -1:
-                            //value = arg0.
-                            break;
-                        case 0:
-                            value = arg0.getBase();
-                            break;
-                        default:
-                            value = arg0.getArg(k);  
-                            break;
-                    }
-                }
-            }
-            
-            addEdge(this.flowGraph, key, value);
-            i = i + 2;
+                System.out.println("para:" + paras.get(i));
+                addEdge(this.flowGraph, arg0, paras.get(i));
             }
         }
+        
         return true;
     }
-    
-    public boolean beforeStaticInvokeExpr(StaticInvokeExpr arg0) {
-	SootMethod sm = arg0.getMethod();
-        if (sm.getName().contains("Activity")){
-            sinkGraph.add(sm);
-        }
-        FlowCheck fc = FlowCheckStmt.fcMatch(sm,fcSet);
-        Value key = null;
-        Value value = null;
-        if ( fc != null) { // found
-            // check operations
-            String operations = fc.operations;
-            int i = 0;
-            
-            while(i < operations.length()){
-            String ops = operations.substring(i, i+2);
-            for (int j = 0; j < ops.length(); j++){
-                if ( j == 0){ //key
-                    int k = Integer.parseInt(ops.substring(0, 1));
-                    switch (k) {
-                        case -1:
-                            //key = arg0.
-                            break;
-                        case 0:
-                            //key = arg0.getBase();
-                            break;
-                        default:
-                            key = arg0.getArg(k);
-                            break;
-                    }
-                }
-                else if (j == 1){ //value
-                    int k = Integer.parseInt(ops.substring(1, 2));
-                    switch (k) {
-                        case -1:
-                            //value = arg0.
-                            break;
-                        case 0:
-                            //value = arg0.getBase();
-                            break;
-                        default:
-                            value = arg0.getArg(k);  
-                            break;
-                    }
-                }
-            }
-            
-            addEdge(this.flowGraph, key, value);
-            i = i + 2;
-            }
-        }
-        return true;
-    }
-    
-    public boolean beforeSpecialInvokeExpr(SpecialInvokeExpr arg0) {
-	SootMethod sm = arg0.getMethod();
-        if (sm.getName().contains("Activity")){
-            sinkGraph.add(sm);
-        }
-        FlowCheck fc = FlowCheckStmt.fcMatch(sm,fcSet);
-        Value key = null;
-        Value value = null;
-        if ( fc != null) { // found
-            // check operations
-            String operations = fc.operations;
-            int i = 0;
-            
-            while(i < operations.length()){
-            String ops = operations.substring(i, i+2);
-            for (int j = 0; j < ops.length(); j++){
-                if ( j == 0){ //key
-                    int k = Integer.parseInt(ops.substring(0, 1));
-                    switch (k) {
-                        case -1:
-                            //key = arg0.
-                            break;
-                        case 0:
-                            key = arg0.getBase();
-                            break;
-                        default:
-                            key = arg0.getArg(k);
-                            break;
-                    }
-                }
-                else if (j == 1){ //value
-                    int k = Integer.parseInt(ops.substring(1, 2));
-                    switch (k) {
-                        case -1:
-                            //value = arg0.
-                            break;
-                        case 0:
-                            value = arg0.getBase();
-                            break;
-                        default:
-                            value = arg0.getArg(k);  
-                            break;
-                    }
-                }
-            }
-            
-            addEdge(this.flowGraph, key, value);
-            i = i + 2;
-            }
-        }
-        return true;
-    }
-    
-    public boolean beforeInterfaceInvokeExpr(InterfaceInvokeExpr arg0) {
-	SootMethod sm = arg0.getMethod();
-        if (sm.getName().contains("Activity")){
-            sinkGraph.add(sm);
-        }
-        FlowCheck fc = FlowCheckStmt.fcMatch(sm,fcSet);
-        Value key = null;
-        Value value = null;
-        if ( fc != null) { // found
-            // check operations
-            String operations = fc.operations;
-            int i = 0;
-            
-            while(i < operations.length()){
-            String ops = operations.substring(i, i+2);
-            for (int j = 0; j < ops.length(); j++){
-                if ( j == 0){ //key
-                    int k = Integer.parseInt(ops.substring(0, 1));
-                    switch (k) {
-                        case -1:
-                            //key = arg0.
-                            break;
-                        case 0:
-                            key = arg0.getBase();
-                            break;
-                        default:
-                            key = arg0.getArg(k);
-                            break;
-                    }
-                }
-                else if (j == 1){ //value
-                    int k = Integer.parseInt(ops.substring(1, 2));
-                    switch (k) {
-                        case -1:
-                            //value = arg0.
-                            break;
-                        case 0:
-                            value = arg0.getBase();
-                            break;
-                        default:
-                            value = arg0.getArg(k);  
-                            break;
-                    }
-                }
-            }
-            
-            addEdge(this.flowGraph, key, value);
-            i = i + 2;
-            }
-        }
-        return true;
-    }
->>>>>>> c954570be4ac34a5c22a226011fe0243dabf8bb6
     
     private Object checkField (Object val) {
 	
@@ -490,27 +244,7 @@ public class UIFlowVisitor extends SootVisitor{
                 i = i + 2;
                 }
             }
-            else {
-                
-                addEdge(this.flowGraph, arg0.getBase(), sc);
-                List<Parameter> paras = paraTable.get(sm);
-                if (paras == null) {
-                    paras = new ArrayList<Parameter>();
-                    for(int i = 0; i< sm.getParameterTypes().size(); i++){
-                        if (slist.contains(sm.getParameterType(i).toString())) {
-                            Parameter p = new Parameter(sm, i);
-                            paras.add(p);
-                        }      
-                    }
-                paraTable.put(sm, paras);
-                }
-                paras = paraTable.get(sm);
-                for(int i = 0; i< paras.size(); i++){
-                    System.out.println("para:" + paras.get(i));
-                    addEdge(this.flowGraph, arg0.getArg(i), paras.get(i));
-                }
-                
-            } 
+             
         }
         return true;
     }
@@ -583,28 +317,7 @@ public class UIFlowVisitor extends SootVisitor{
                 i = i + 2;
                 }
             }
-            else {
-                
-                addEdge(this.flowGraph, arg0.getBase(), sc);
-                List<Parameter> paras = paraTable.get(sm);
-                if (paras == null) {
-                    paras = new ArrayList<Parameter>();
-                    for(int i = 0; i< sm.getParameterTypes().size(); i++){
-                        if (slist.contains(sm.getParameterType(i).toString())) {
-                            Parameter p = new Parameter(sm, i);
-                            paras.add(p);
-                        }      
-                    }
-                paraTable.put(sm, paras);
-                }
-                paras = paraTable.get(sm);
-                for(int i = 0; i< paras.size(); i++){
-                    System.out.println("para:" + paras.get(i));
-                    addEdge(this.flowGraph, arg0.getArg(i), paras.get(i));
-                   
-                }
-                
-            } 
+             
         }
         return true;
     }
@@ -675,31 +388,7 @@ public class UIFlowVisitor extends SootVisitor{
                 i = i + 2;
                 }
             }
-            else {
-                
-                //addEdge(this.flowGraph, arg0.getBase(), sc);
-                arg0.getMethodRef();
-                
-                
-                
-                List<Parameter> paras = paraTable.get(sm);
-                if (paras == null) {
-                    paras = new ArrayList<Parameter>();
-                    for(int i = 0; i< sm.getParameterTypes().size(); i++){
-                        if (slist.contains(sm.getParameterType(i).toString())) {
-                            Parameter p = new Parameter(sm, i);
-                            paras.add(p);
-                        }      
-                    }
-                paraTable.put(sm, paras);
-                }
-                paras = paraTable.get(sm);
-                for(int i = 0; i< paras.size(); i++){
-                    System.out.println("para:" + paras.get(i));                               
-                    addEdge(this.flowGraph, arg0.getArg(i), paras.get(i));
-                }
-                
-            }
+            
         }
         return true;
     }
@@ -771,6 +460,7 @@ public class UIFlowVisitor extends SootVisitor{
                 i = i + 2;
                 }
             }
+            /*
             else {
                 
                 addEdge(this.flowGraph, arg0.getBase(), sc);
@@ -791,7 +481,7 @@ public class UIFlowVisitor extends SootVisitor{
                     addEdge(this.flowGraph, arg0.getArg(i), paras.get(i));
                 }
                 
-            }
+            }*/
         }
         return true;
     }

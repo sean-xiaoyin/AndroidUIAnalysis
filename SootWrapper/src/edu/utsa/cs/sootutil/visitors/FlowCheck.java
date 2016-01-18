@@ -9,16 +9,16 @@ public class FlowCheck {
     public String className;
     public String methodName;
     public List<String> paraList;
-    public String operations;
+    public List<String> operations;
     
     public FlowCheck(){
 	this.className = new String();
         this.methodName = new String();
         this.paraList = new ArrayList<String>();
-        this.operations = new String();
+        this.operations = new ArrayList<String>();
     }
     
-    public FlowCheck(String className, String methodName, String returnType, List<String> paraList, String operations ){
+    public FlowCheck(String className, String methodName, String returnType, List<String> paraList, List<String> operations ){
         this.className = className;
         this.methodName = methodName;
         this.paraList = paraList;
@@ -40,7 +40,7 @@ public class FlowCheck {
 
     public void setoperations(String line) {
         //line to operations
-        this.operations = line.replaceAll(",", "");
+        this.operations = Arrays.asList(line.replaceAll(",", ""));
     }
     
 }
