@@ -3,6 +3,7 @@ package edu.utsa.androidmt.rerank;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 import edu.usta.androidmt.model.PhrasePair;
 import edu.usta.androidmt.model.PropModel;
 import edu.usta.androidmt.model.SentencePair;
+import edu.utsa.androidmt.loader.StopWords;
 
 public class PropUpdater {
     private PropModel model;
@@ -23,15 +25,39 @@ public class PropUpdater {
 	this.phraseLineTable = phraseLineTable;
 	this.phraseLines = phraseLines;
     }
-    public String updateProp(List<String> sentences, Hashtable<String, List<String>> contexts) throws IOException, InterruptedException{
-	for(String sentence : sentences){
-	    Set<String> phrases = SentencePair.getPhrases(sentence, 4);
-	    for(String phrase : phrases){
-		List<PhrasePair> pairs = this.model.getPairs(phrase);
-		if(pairs!=null){
-		    for (PhrasePair pp : pairs){
-			if(this.phraseLineTable.get(pp)!=null){
-			    updatePhraseFile(this.phraseLineTable.get(pp), this.model.getContextsProp(pp, contexts.get(sentence)));
+    public String updateProp(List<String> sentences, Hashtable<String, List<String>> contexts, boolean islast) throws IOException, InterruptedException{
+	List<Integer> recoverList = new ArrayList<Integer>();
+	List<String> recoverStrs = new ArrayList<String>();
+	if(true){
+	    for(String sentence : sentences){
+		Set<String> phrases = SentencePair.getPhrases(sentence, 4);
+		for(String phrase : phrases){
+		    if(!StopWords.isStopword(phrase)){
+			List<PhrasePair> pairs = this.model.getPairs(phrase);
+/*			if(phrase.equals("alarm") || phrase.equals("faces") || phrase.equals("try")){
+			    System.out.println();
+			}*/
+			if(pairs!=null){
+			    for (PhrasePair pp : pairs){
+				Integer lineNum = this.phraseLineTable.get(pp);
+				if(lineNum!=null){
+				    double rawProb = this.model.getContextsProb(pp, contexts.get(sentence));
+				    if(rawProb!=pp.getBasicValue()){
+					recoverList.add(lineNum);
+					recoverStrs.add(this.phraseLines.get(lineNum));
+					double amplifier = rawProb / pp.getBasicValue();
+//					if(amplifier > 1.0){
+//					    double logamp  = Math.log(amplifier - 1 + Math.E);
+					    double newProbProd = amplifier * pp.getBasicValue();
+					    double newProbsmooth = 1 - 1 / (1 + newProbProd);
+//					    double newProb = newProbProd > newProbsmooth ? newProbsmooth : newProbProd;
+//					    if(newProbsmooth > pp.getBasicValue()){
+						updatePhraseFile(lineNum, newProbsmooth);
+//					    }
+//					}
+				    }
+				}
+			    }
 			}
 		    }
 		}
@@ -43,9 +69,18 @@ public class PropUpdater {
 	    pw.println(line);
 	}
 	pw.close();
+	System.out.println("recover phrase lines ...");
+	recoverLines(recoverList, recoverStrs);
+	System.out.println("prepare phrase table");
 	CommandRunner.runCommand("rm -rf " + newPhraseTablePath + ".gz", true);
 	CommandRunner.runCommand("gzip " + newPhraseTablePath, true);
 	return newPhraseTablePath;
+    }
+    private void recoverLines(List<Integer> recoverList,
+	    List<String> recoverStrs) {
+	for(int i = 0; i < recoverList.size(); i++){
+	    this.phraseLines.set(recoverList.get(i), recoverStrs.get(i));
+	}
     }
     private void updatePhraseFile(int lineNum, double contextsProp) {
 	String line = this.phraseLines.get(lineNum);

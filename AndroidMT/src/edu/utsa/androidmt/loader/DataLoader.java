@@ -3,7 +3,9 @@ package edu.utsa.androidmt.loader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -99,7 +101,7 @@ public class DataLoader {
 			    String[] words = sen.split(" ");
 			    for(String word:words){
 				if(word.trim().length() > 0 && !StopWords.isStopword(word)){
-				    contextWords.add(Stemmer.stemWord(word.trim()));
+				    contextWords.add(Stemmer.stemWord(word.trim().toLowerCase()));
 				}
 			    }
 			}
@@ -129,5 +131,13 @@ public class DataLoader {
 
     public List<String> getPhraseLines() {
 	return this.phraseLines;
+    }
+
+    public static void writeLines(String path, List<String> lines) throws IOException {
+	PrintWriter pw = new PrintWriter(new FileWriter(path));
+	for(String line : lines){
+	    pw.println(line.replaceAll("&quot;", ""));
+	}
+	pw.close();
     }
 }
