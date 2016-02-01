@@ -4,6 +4,7 @@ import edu.utsa.cs.sootutil.FlowCheckStmt;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,6 +32,7 @@ public class UIFlowVisitor extends SootVisitor{
     public Set<Object> sourceGraph;
     public Set<Object> sinkGraph;
     public List <String> list;
+    public Hashtable<Object, ArrayList<ParameterRef>> ArgIndexTable;
     
     public UIFlowVisitor() throws FileNotFoundException{
 	this.flowGraph = new Hashtable<Object, Set<Object>>();
@@ -38,6 +40,7 @@ public class UIFlowVisitor extends SootVisitor{
         this.sourceGraph = new HashSet<Object>();
         this.sinkGraph = new HashSet<Object>();
         this.list = classList();
+        this.ArgIndexTable = new Hashtable<Object, ArrayList<ParameterRef>>();
     }
     
     public List <String> classList() throws FileNotFoundException{
@@ -99,42 +102,39 @@ public class UIFlowVisitor extends SootVisitor{
 	handleInvoke(arg0);
         return true;
     }
-    
+
+    /**
+     *
+     * @param arg0
+     * @return
+     */
+    @Override
     public boolean beforeIdentityStmt(IdentityStmt arg0) {
-	Value v = arg0.getRightOp();
-        List <String> slist = paraTypeList();
+	
+        Value v = arg0.getRightOp();
         
-        if (v instanceof ParameterRef) {
-            ParameterRef parameterRef = (ParameterRef) v;
-            SootMethod sm = arg0.getInvokeExpr().getMethod();
+        // Get Parameter type and short name
+        String paraType = arg0.getLeftOp().getType().toString();
+        String[] sn_tmp = paraType.split("\\.");
+        String sn = sn_tmp[sn_tmp.length-1];
+        //System.out.print("classname: "+arg0.getClass().getDeclaredClasses().toString() +"\n");
+        
+        if (list.contains(sn)) {   // parameter type is subtype of View
             
-            addEdge(this.flowGraph, arg0.getLeftOp(), sm.getDeclaringClass().getJavaStyleName());
-            
-            // addEdge first
-            //addEdge(this.flowGraph, arg0.getBase(), sc);
-            
-            // get the parameters(values) already exist in this sm
-            List<ParameterRef> paras = paraTable.get(sm);
-            
-            // if no parameters, create a new list then add.
-            if (paras == null) {
-                paras = new ArrayList<ParameterRef>();
-                for(int i = 0; i< sm.getParameterTypes().size(); i++){
-                    if (slist.contains(sm.getParameterType(i).toString())) {
-                        Parameter p = new Parameter(sm, i);
-                        paras.add(parameterRef);
-                    }      
+            if (v instanceof ParameterRef) {
+                ParameterRef parameterRef = (ParameterRef) v;
+                
+                // add ParameterRef to ArgIndexTable with modified type
+                if ( ArgIndexTable.containsKey(paraType) == false ) { //does not contain paratype
+                    ArrayList<ParameterRef> reflist = new ArrayList<ParameterRef>();
+                    ArgIndexTable.put(paraType, reflist);
+                    ArgIndexTable.get(paraType).add(parameterRef);
                 }
-                paraTable.put(sm, paras);
-            }
-            // if already have parameters, directly addedge
-            paras = paraTable.get(sm);
-            for(int i = 0; i< paras.size(); i++){
-                System.out.println("para:" + paras.get(i));
-                addEdge(this.flowGraph, arg0, paras.get(i));
-            }
-        }
-        
+                else {
+                    ArgIndexTable.get(paraType).add(parameterRef);
+                }
+            }   
+        }        
         return true;
     }
     
@@ -147,19 +147,16 @@ public class UIFlowVisitor extends SootVisitor{
 	return val;
     }
 
-    private void addEdge(
-	    Hashtable<Object, Set<Object>> graph,
-	    Object key, Object value)
-    {
-        System.out.println(key + ":" + value);
-	if(graph.containsKey(key)){
+    private void addEdge( Hashtable<Object, Set<Object>> graph, Object key, Object value) {
+	
+        if(graph.containsKey(key)) {
 	    graph.get(key).add(value);
-	}else{
+	}
+        else{
 	    HashSet<Object> targets = new HashSet<Object>();
 	    targets.add(value);
 	    graph.put(key, targets);
-	}
-        
+	}    
     }
     
     private List <String> paraTypeList () {
@@ -225,15 +222,12 @@ public class UIFlowVisitor extends SootVisitor{
                         int k = Integer.parseInt(ops.get(1));
                         switch (k) {
                             case -1:
-                                System.out.println("arg0:" + arg0);
                                 value = arg0;
                                 break;
                             case 0:
-                                System.out.println("arg0base:" + arg0.getBase());
                                 value = arg0.getBase();
                                 break;
                             default:
-                                System.out.println("argk:" + arg0.getArg(k));
                                 value = arg0.getArg(k);  
                                 break;
                         }
@@ -242,6 +236,15 @@ public class UIFlowVisitor extends SootVisitor{
                 addEdge(this.flowGraph, key, value);
                 
                 i = i + 2;
+                }
+            }
+            else {
+                
+                for(int i = 0; i < sm.getParameterTypes().size(); i++){
+                    String paraType = sm.getParameterType(i).toString();
+                    if (ArgIndexTable.containsKey(paraType) == true) { //found para in ArgIndexTable
+                        addEdge(this.flowGraph, arg0.getBase(), ArgIndexTable.get(paraType).get(i));
+                    }
                 }
             }
              
@@ -317,6 +320,15 @@ public class UIFlowVisitor extends SootVisitor{
                 i = i + 2;
                 }
             }
+            else {
+                
+                for(int i = 0; i < sm.getParameterTypes().size(); i++){
+                    String paraType = sm.getParameterType(i).toString();
+                    if (ArgIndexTable.containsKey(paraType) == true) { //found para in ArgIndexTable
+                        addEdge(this.flowGraph, arg0.getBase(), ArgIndexTable.get(paraType).get(i));
+                    }
+                }
+            }
              
         }
         return true;
@@ -386,6 +398,15 @@ public class UIFlowVisitor extends SootVisitor{
                 }
                 addEdge(this.flowGraph, key, value);
                 i = i + 2;
+                }
+            }
+            else {
+                
+                for(int i = 0; i < sm.getParameterTypes().size(); i++){
+                    String paraType = sm.getParameterType(i).toString();
+                    if (ArgIndexTable.containsKey(paraType) == true) { //found para in ArgIndexTable
+                        //addEdge(this.flowGraph, arg0.getBase(), ArgIndexTable.get(paraType).get(i));
+                    }
                 }
             }
             
@@ -460,9 +481,18 @@ public class UIFlowVisitor extends SootVisitor{
                 i = i + 2;
                 }
             }
-            /*
             else {
                 
+                for(int i = 0; i < sm.getParameterTypes().size(); i++){
+                    String paraType = sm.getParameterType(i).toString();
+                    if (ArgIndexTable.containsKey(paraType) == true) { //found para in ArgIndexTable
+                        addEdge(this.flowGraph, arg0.getBase(), ArgIndexTable.get(paraType).get(i));
+                    }
+                }
+            }
+                
+                
+                /*
                 addEdge(this.flowGraph, arg0.getBase(), sc);
                 List<Parameter> paras = paraTable.get(sm);
                 if (paras == null) {

@@ -109,19 +109,12 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
                 for (SootMethod sm : sc.getMethods()){
                     uv.setCurrentMethod(sm);
                     uv.fcCaseMatch_test(sm);
-                    //System.out.println(sm.getActiveBody()+ "\n");
-                    //System.out.println(sm.getSignature() + "\n");
-                    //System.out.println(sm.getName() + "\n");
+                    
                     if(sm.hasActiveBody()){
-                        System.out.println(sm.getActiveBody());
+                        //System.out.println(sm.getActiveBody());
 			for(Unit u : sm.getActiveBody().getUnits()){
-                            
-                            Stmt s =(Stmt)u;
-                            if(s instanceof InvokeStmt){
-                                u.apply(uv);
-                            }
                                   
-                            //u.apply(uv);
+                            u.apply(uv);
 			}
                     }
                 }
