@@ -40,7 +40,7 @@ public class FlowCheck {
 
     public void setoperations(String line) {
         //line to operations
-        this.operations = Arrays.asList(line.replaceAll(",", ""));
+        this.operations = Arrays.asList(line.split(","));
     }
     
 }
