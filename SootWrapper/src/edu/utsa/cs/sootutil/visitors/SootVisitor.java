@@ -2,7 +2,7 @@ package edu.utsa.cs.sootutil.visitors;
 
 //import edu.utsa.cs.sootutil.FlowCheckLoader;
 import edu.utsa.cs.sootutil.FlowCheckStmt;
-import edu.utsa.cs.sootutil.FlowDraw;
+import edu.utsa.cs.sootutio.uigraph.FlowDraw;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Set;
@@ -79,7 +79,8 @@ import soot.util.Chain;
 public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 
 	private SootClass curClass;
-	private SootMethod curMethod;
+	protected SootMethod curMethod;
+        private Stmt curStmt; 
         static Set<FlowCheck> fcSet;
 	
 	public static void visitAll(Chain<SootClass> classes, SootVisitor sv, String API_path) throws Exception{
@@ -109,39 +110,27 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
                 for (SootMethod sm : sc.getMethods()){
                     uv.setCurrentMethod(sm);
                     uv.fcCaseMatch_test(sm);
-                    //System.out.println(sm.getActiveBody()+ "\n");
-                    //System.out.println(sm.getSignature() + "\n");
-                    //System.out.println(sm.getName() + "\n");
+                    
                     if(sm.hasActiveBody()){
-                        System.out.println(sm.getActiveBody());
+                        //System.out.println(sm.getActiveBody());
 			for(Unit u : sm.getActiveBody().getUnits()){
-                            
-                            Stmt s =(Stmt)u;
-                            if(s instanceof InvokeStmt){
-                                u.apply(uv);
-                            }
-                                  
-                            //u.apply(uv);
+                            uv.setCurStmt((Stmt)u);      
+                            u.apply(uv);
 			}
                     }
                 }
                 
                 
                 
+                
                 File filew = new File("/home/xue/Documents/FlowGraph/out.txt");
                 FileWriter fileWriter = new FileWriter(filew,true);
         
-                fileWriter.write("\n========== flowgraph ==========\n");
-                fileWriter.write(sc.getName().toString() + "\n");
-                fileWriter.write(uv.flowGraph.toString());
-                fileWriter.write("\n-----------list-----------\n");
-                fileWriter.write(uv.list.toString());
-                fileWriter.write("\n-----------sinkGraph----------\n");
-                fileWriter.write(uv.sinkGraph.toString());
-                fileWriter.write("\n-----------sourceGraph---------\n");
-                fileWriter.write(uv.sourceGraph.toString());
-                fileWriter.write("\n-----------paraTable-----------\n");
-                fileWriter.write(uv.paraTable.toString());
+                //fileWriter.write("\n========== flowgraph ==========\n");
+                //fileWriter.write(sc.getName().toString() + "\n");
+                //fileWriter.write(uv.graph.getFlowGraph().toString());
+                fileWriter.write("\n-----------ArgIndexTable-----------\n");
+                fileWriter.write(uv.ArgIndexTable.toString());
                 
         
                 fileWriter.flush();
@@ -153,7 +142,7 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
                 fw.flush();
                 fw.close();
                 
-            }
+            }//
 	}
 	
 	public SootClass getCurrentClass(){
@@ -162,6 +151,15 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 	public SootMethod getCurrentMethod(){
 		return this.curMethod;
 	}
+
+        public Stmt getCurStmt() {
+            return curStmt;
+        }
+
+        public void setCurStmt(Stmt curStmt) {
+            this.curStmt = curStmt;
+        }
+        
 	public void setCurrentClass(SootClass sc){
 		this.curClass = sc;
 	}
@@ -215,6 +213,9 @@ public abstract class SootVisitor implements StmtSwitch, JimpleValueSwitch{
 	public boolean beforeIdentityStmt(IdentityStmt arg0) {
 		return true;
 	}
+        
+       
+        
 	public void afterIdentityStmt(IdentityStmt arg0) {
 	}
 

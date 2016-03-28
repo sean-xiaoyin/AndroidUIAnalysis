@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/home/xue/AndroidUIAnalysis/SootWrapper/src/edu/utsa/cs/sootutil/driver/Main.java</file>
+            <file>file:/home/xue/AndroidUIAnalysis/SootWrapper/src/edu/utsa/cs/sootutil/visitors/UIFlowVisitor.java</file>
+            <file>file:/home/xue/AndroidUIAnalysis/SootWrapper/src/edu/utsa/cs/sootutil/visitors/FlowCheck.java</file>
+            <file>file:/home/xue/AndroidUIAnalysis/SootWrapper/src/edu/utsa/cs/sootutil/FlowCheckStmt.java</file>
+            <file>file:/home/xue/AndroidUIAnalysis/SootWrapper/src/edu/utsa/cs/sootutil/visitors/SootVisitor.java</file>
+            <file>file:/home/xue/AndroidUIAnalysis/SootWrapper/src/edu/utsa/cs/sootutil/visitors/ReflectionVisitor.java</file>
+        </group>
+    </open-files>
+</project-private>
